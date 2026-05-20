@@ -1,0 +1,45 @@
+
+
+<main class="bb-page">
+  @if (book(); as b) {
+    <section class="bb-detail">
+      <div class="bb-coverWrap">
+        <img class="bb-cover" [src]="b.coverUrl" [alt]="b.title" />
+      </div>
+
+      <div class="bb-info">
+        <div class="bb-badge">{{ b.category }}</div>
+        <h1 class="bb-title">{{ b.title }}</h1>
+        <div class="bb-author">di {{ b.author }}</div>
+
+        <div class="bb-rating">
+          <span class="bb-star">★</span>
+          <span class="bb-ratingText">{{ b.rating.toFixed(1) }}/5</span>
+        </div>
+
+        <p class="bb-desc">{{ b.description }}</p>
+
+        <div class="bb-row">
+          <div class="bb-price">€ {{ b.price.toFixed(2) }}</div>
+          <div class="bb-qtyBox">
+            <label class="bb-qtyLabel" for="qty">Quantità</label>
+<input id="qty" class="bb-qty" type="number" min="1" step="1" [value]="qty()" (input)="qty.set($any($event.target).value)" />
+          </div>
+        </div>
+
+        <div class="bb-actions">
+          <button class="bb-add" (click)="add()">Aggiungi al carrello</button>
+          <a class="bb-secondary" routerLink="/carrello">Vai al carrello</a>
+        </div>
+
+        <div class="bb-meta">
+          <div>Lingua: <b>{{ b.language ?? '—' }}</b></div>
+          <div>Pagine: <b>{{ b.pages ?? '—' }}</b></div>
+        </div>
+      </div>
+    </section>
+  } @else {
+    <div class="bb-empty">Libro non trovato.</div>
+  }
+</main>
+

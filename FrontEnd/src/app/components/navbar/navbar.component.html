@@ -1,0 +1,18 @@
+<header class="bb-header">
+  <div class="bb-container">
+    <div class="bb-brand">
+      <a routerLink="/" class="bb-logo">📚 BooksClub</a>
+    </div>
+
+    <nav class="bb-nav">
+      <a routerLink="/" class="bb-link">Catalogo</a>
+      <a routerLink="/carrello" class="bb-link">
+        Carrello
+        <span class="bb-pill" *ngIf="cartCount() > 0">{{ cartCount() }}</span>
+      </a>
+    </nav>
+
+    <div class="bb-spacer"></div>
+  </div>
+</header>
+

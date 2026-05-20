@@ -1,0 +1,95 @@
+:host { display: block; }
+
+.bb-card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.bb-cover {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+  background: rgba(0,0,0,0.15);
+}
+
+.bb-meta {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bb-category {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.75);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.bb-title {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.bb-title a {
+  color: white;
+  text-decoration: none;
+}
+
+.bb-title a:hover { text-decoration: underline; }
+
+.bb-author {
+  font-size: 13px;
+  color: rgba(255,255,255,0.78);
+}
+
+.bb-rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bb-stars {
+  color: #FBBF24;
+}
+
+.bb-ratingText {
+  font-weight: 800;
+}
+
+.bb-bottom {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.bb-price {
+  font-weight: 900;
+  color: white;
+}
+
+.bb-btn {
+  background: linear-gradient(90deg, #F43F5E, #A855F7);
+  border: 0;
+  color: white;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.bb-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+

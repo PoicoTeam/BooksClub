@@ -1,0 +1,60 @@
+
+
+<main>
+  <section class="bb-headerRow">
+    <div>
+      <h1 class="bb-h1">Carrello</h1>
+      <p class="bb-sub">Rivedi quantità e totale. Nessun pagamento reale.</p>
+    </div>
+
+    <div class="bb-actionsTop">
+<button class="bb-ghost" (click)="clear()" [disabled]="items().length === 0">Svuota</button>
+    </div>
+  </section>
+
+  @if (items().length > 0) {
+    <section class="bb-cart">
+      @for (it of items(); track it.book.id) {
+        <div class="bb-item">
+          <img class="bb-cover" [src]="it.book.coverUrl" [alt]="it.book.title" />
+
+          <div class="bb-itemInfo">
+            <div class="bb-itemTop">
+              <div>
+                <div class="bb-itemTitle">{{ it.book.title }}</div>
+                <div class="bb-itemAuthor">{{ it.book.author }}</div>
+                <div class="bb-itemCat">{{ it.book.category }}</div>
+              </div>
+
+              <button class="bb-remove" (click)="remove(it.book.id)">Rimuovi</button>
+            </div>
+
+            <div class="bb-row2">
+              <div class="bb-qty">
+                <button class="bb-qtyBtn" (click)="dec(it.book.id)">−</button>
+                <div class="bb-qtyValue">{{ it.quantity }}</div>
+                <button class="bb-qtyBtn" (click)="inc(it.book.id)">+</button>
+              </div>
+
+              <div class="bb-lineTotal">
+                Totale: <b>€ {{ (it.book.price * it.quantity).toFixed(2) }}</b>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <div class="bb-summary">
+        <div class="bb-summaryRow">
+          <span>Totale carrello</span>
+          <b>€ {{ total().toFixed(2) }}</b>
+        </div>
+        <button class="bb-checkout" (click)="checkout()">Checkout</button>
+      </div>
+    </section>
+  } @else {
+    <div class="bb-empty">Il carrello è vuoto.</div>
+    <a class="bb-secondary" routerLink="/">Torna al catalogo</a>
+  }
+</main>
+

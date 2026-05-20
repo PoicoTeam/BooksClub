@@ -1,0 +1,24 @@
+<div class="bb-card">
+  <img class="bb-cover" [src]="book.coverUrl" [alt]="book.title" />
+
+  <div class="bb-meta">
+    <div class="bb-category">{{ book.category }}</div>
+    <h3 class="bb-title">
+      <a [routerLink]="['/libro', book.id]">{{ book.title }}</a>
+    </h3>
+    <div class="bb-author">di {{ book.author }}</div>
+
+    <div class="bb-rating" aria-label="Valutazione">
+      <span class="bb-stars">★</span>
+      <span class="bb-ratingText">{{ book.rating.toFixed(1) }}</span>
+    </div>
+
+    <div class="bb-bottom">
+      <div class="bb-price">€ {{ book.price.toFixed(2) }}</div>
+      <button class="bb-btn" (click)="add()" [disabled]="!canBuy()">
+        Aggiungi
+      </button>
+    </div>
+  </div>
+</div>
+

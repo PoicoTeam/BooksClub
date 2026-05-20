@@ -1,0 +1,46 @@
+
+
+<main class="bb-page">
+  <section class="bb-hero">
+    <div>
+      <h1 class="bb-h1">La tua libreria online</h1>
+      <p class="bb-sub">Scopri libri selezionati, aggiungili al carrello e simula il checkout.</p>
+    </div>
+  </section>
+
+  <section class="bb-controls">
+    <div class="bb-search">
+      <label class="bb-label" for="q">Cerca</label>
+      <input
+        id="q"
+        class="bb-input"
+        type="text"
+        placeholder="Titolo o autore..."
+        [value]="query()" (input)="setQuery($any($event.target).value)"
+      />
+    </div>
+
+    <div class="bb-filter">
+      <label class="bb-label" for="cat">Categoria</label>
+      <select
+        id="cat"
+        class="bb-select"
+        [value]="selectedCategory()" (change)="setCategory($any($event.target).value)"
+      >
+        <option value="Tutte">Tutte</option>
+        @for (c of categories(); track c) {
+          <option [value]="c">{{ c }}</option>
+        }
+      </select>
+    </div>
+  </section>
+
+  <section class="bb-grid" aria-label="Catalogo libri">
+    @for (b of filtered(); track b.id) {
+      <app-book-card [book]="b" />
+    } @empty {
+      <div class="bb-empty">Nessun libro trovato. Prova a cambiare ricerca o filtro.</div>
+    }
+  </section>
+</main>
+
