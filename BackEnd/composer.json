@@ -2,6 +2,8 @@
     "require": {
         "slim/slim": "4.*",
         "slim/psr7": "^1.6",
-        "mustache/mustache": "^2.14"
+        "mustache/mustache": "^2.14",
+        "mongodb/mongodb": "^1.16",
+        "php-di/php-di": "^7.1"
     }
 }
