@@ -53,6 +53,46 @@ docker compose up -d --build
 
 ---
 
+## 🧪 Comandi CURL per il Test
+
+Usa questi comandi dal terminale per verificare il corretto funzionamento del backend senza usare il frontend.
+
+### 1. Gestione Libri
+
+Mostra l'elenco completo di tutti i libri memorizzati nel database:
+```bash
+curl http://localhost:8080/list
+```
+
+Salva un nuovo libro nella tua libreria personale:
+```bash
+curl -X POST http://localhost:8080/add \
+     -d "titolo=Il Signore degli Anelli" \
+     -d "autore=J.R.R. Tolkien" \
+     -d "anno=1954"
+```
+
+Elimina in modo permanente un libro specifico (Sostituisci `ID_DEL_LIBRO` con l'ID reale restituito dalla chiamata `/list`):
+```bash
+curl -X POST http://localhost:8080/books/ID_DEL_LIBRO/cancel
+```
+
+### 2. Stati e Preferiti
+
+Cambia lo stato di lettura di un libro (es: impostalo su `letto` o `da_leggere`):
+```bash
+curl -X POST http://localhost:8080/books/ID_DEL_LIBRO/state \
+     -d "stato=letto"
+```
+
+Aggiungi o rimuovi un libro dai tuoi preferiti (Invia `1` per attivarlo, `0` per disattivarlo):
+```bash
+curl -X POST http://localhost:8080/books/ID_DEL_LIBRO/favorite \
+     -d "preferito=1"
+```
+
+---
+
 ## 📦 Gestione Dipendenze (Composer)
 
 Per installare nuove librerie (come il driver MongoDB per PHP), esegui:
@@ -64,7 +104,7 @@ docker compose exec my_web composer require mongodb/mongodb
 
 ## 🔗 Stringa di Connessione PHP
 
-Per collegare la tua applicazione al database, usa questa stringa:
+Per collegare la tua application al database, usa questa stringa:
 ```php
 \$client = new MongoDB\Client("mongodb://admin:password123@mongodb:27017");
 ```
