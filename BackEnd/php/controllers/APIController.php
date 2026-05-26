@@ -13,11 +13,18 @@ class APIController
         $this->container = $container;
     }
 
+    /**
+     * Metodo helper privato per recuperare la collezione senza ripetere codice
+     */
+    private function getCollection()
+    {
+        $db = $this->container->get('db');
+        return $db->selectCollection('book');
+    }
+
     public function index(Request $request, Response $response, array $args)
     {
-        // Collegamento al db e alla collezione book
-        $db = $this->container->get('db');
-        $collection = $db->selectCollection('book');
+        $collection = $this->getCollection();
 
         // Salvare tutti i documenti in un cursor
         $cursor = $collection->find([]);
@@ -25,9 +32,16 @@ class APIController
         // Trasformare il cursor in un array 
         $libri = iterator_to_array($cursor);
 
+        // Correzione per json_encode: convertiamo l'ObjectId di MongoDB in stringa leggibile
+        $libriFormattati = array_map(function($libro) {
+            if (isset($libro['_id']) && $libro['_id'] instanceof \MongoDB\BSON\ObjectId) {
+                $libro['_id'] = (string) $libro['_id'];
+            }
+            return $libro;
+        }, $libri);
 
         // Response
-        $response->getBody()->write(json_encode($libri));
+        $response->getBody()->write(json_encode($libriFormattati));
         return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
     }
 
@@ -41,8 +55,7 @@ class APIController
         $anno = $data['anno'] ?? '';
 
         if(!empty($titolo) && !empty($autore)){
-            $db = $this->container->get('db');
-            $collection = $db->selectCollection('book');
+            $collection = $this->getCollection();
 
             // inserimento in db
             $collection->insertOne([
@@ -54,7 +67,6 @@ class APIController
 
         // reindirizzamento alla home - '/'
         return $response->withHeader('Location', '/')->withStatus(302);
-
     }
 
     public function delete(Request $request, Response $response, array $args)
@@ -66,7 +78,6 @@ class APIController
             $collection = $this->getCollection();
 
             // cancellazione del libro con id
-            // MongoDB\BSON\ObjectId($id) - converte il testo dell'ID in un "oggetto speciale" riconosciuto da MongoDB per trovare il libro esatto
             $collection->deleteOne(['_id' => new MongoDB\BSON\ObjectId($id)]);
         }
         
@@ -76,9 +87,9 @@ class APIController
 
     public function updateState(Request $request, Response $response, array $args)
     { 
-       $id = $args['idBook'] ?? '';
-       $data = $request->getParsedBody();
-       $nuovoStato = $data['stato'] ?? ''; // riceve il valore letto/da_leggere
+        $id = $args['idBook'] ?? '';
+        $data = $request->getParsedBody();
+        $nuovoStato = $data['stato'] ?? ''; // riceve il valore letto/da_leggere
 
         if(!empty($id) && !empty($nuovoStato)) {
             $collection = $this->getCollection();
@@ -92,15 +103,14 @@ class APIController
         
         // reindirizzamento alla home - '/'
         return $response->withHeader('Location', '/')->withStatus(302);
-
     }
 
     public function toggleFavorite(Request $request, Response $response, array $args)
     { 
-       $id = $args['idBook'] ?? '';
-       $data = $request->getParsedBody();
+        $id = $args['idBook'] ?? '';
+        $data = $request->getParsedBody();
 
-        // Converte il valore del form in un vero bolleano (true/false)
+        // Converte il valore del form in un vero booleano (true/false)
         $isPreferito = isset($data['preferito']) && $data['preferito'] == '1';
 
         if(!empty($id)) {
@@ -115,6 +125,5 @@ class APIController
         
         // reindirizzamento alla home - '/'
         return $response->withHeader('Location', '/')->withStatus(302);
-
     }
 }

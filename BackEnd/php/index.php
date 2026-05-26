@@ -17,8 +17,8 @@ $container = new \DI\Container();
 // 2. Registra la connessione MongoDB
 $container->set('db', function (ContainerInterface $container) {
     //Usiamo 'mongodb' al posto di 'localhost' perché siamo dentro la rete Docker
-    $uri = "mongodb://admin:password123@mongodb:27017";
-    //$uri = "mongodb://localhost:27017"; 
+    //$uri = "mongodb://admin:password123@mongodb:27017";
+    $uri = "mongodb://localhost:27017"; 
     $client = new Client($uri);
     return $client->selectDatabase('bookShop');
 });
@@ -28,8 +28,8 @@ AppFactory::setContainer($container);
 $app = AppFactory::create();
 
 // Rileva dinamicamente il percorso corretto dell'index.php eliminando i conflitti di routing
-// $basePath = str_replace('/index.php', '', $_SERVER['SCRIPT_NAME']);
-// $app->setBasePath($basePath);
+$basePath = str_replace('/index.php', '', $_SERVER['SCRIPT_NAME']);
+$app->setBasePath($basePath);
 $app->addBodyParsingMiddleware(); // per leggere i dati inviati (POST)
 $app->addRoutingMiddleware();
 $app->addErrorMiddleware(true, true, true);
