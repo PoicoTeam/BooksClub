@@ -16,9 +16,9 @@ $container = new \DI\Container();
 
 // 2. Registra la connessione MongoDB
 $container->set('db', function (ContainerInterface $container) {
-    /*Usiamo 'mongodb' al posto di 'localhost' perché siamo dentro la rete Docker
-    $uri = "mongodb://admin:password123@mongodb:27017";*/ 
-    $uri = "mongodb://localhost:27017"; 
+    //Usiamo 'mongodb' al posto di 'localhost' perché siamo dentro la rete Docker
+    $uri = "mongodb://admin:password123@mongodb:27017";
+    //$uri = "mongodb://localhost:27017"; 
     $client = new Client($uri);
     return $client->selectDatabase('bookShop');
 });
