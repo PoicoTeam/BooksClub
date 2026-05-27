@@ -3,7 +3,7 @@ FROM php:8.3-apache
 RUN apt-get update && apt-get install -y \
     libssl-dev \
     unzip \
-    && pecl install mongodb \
+    && pecl install mongodb-1.21.2 \
     && docker-php-ext-enable mongodb \
     && rm -rf /var/lib/apt/lists/*
 
