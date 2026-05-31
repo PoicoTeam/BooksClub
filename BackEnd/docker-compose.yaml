@@ -7,7 +7,6 @@ services:
       - "8080:80"
     volumes:
       - "./php:/var/www/html"
-      - "php_vendor:/var/www/html/vendor" 
     depends_on:
       - mongodb
 
@@ -37,4 +36,3 @@ services:
 
 volumes: 
   mongo_data:
-  php_vendor:
