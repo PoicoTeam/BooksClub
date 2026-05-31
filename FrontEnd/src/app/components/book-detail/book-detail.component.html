@@ -1,0 +1,27 @@
+<section class="book-detail">
+  <div *ngIf="loading" class="status">Caricamento in corso...</div>
+  <div *ngIf="errorMessage" class="status error">{{ errorMessage }}</div>
+
+  <div *ngIf="book && !loading" class="detail-card">
+    <h2>{{ book.titolo }}</h2>
+    <div class="row"><span>Autore:</span> <strong>{{ book.autore }}</strong></div>
+    <div class="row"><span>Anno:</span> <strong>{{ book.anno || 'N/D' }}</strong></div>
+    <div class="row"><span>Stato:</span> <strong>{{ book.stato || 'N/D' }}</strong></div>
+    <div class="row"><span>Preferito:</span> <strong>{{ book.preferito ? 'Sì' : 'No' }}</strong></div>
+
+    <div class="detail-actions">
+      <button class="button danger" type="button" (click)="deleteBook()">Elimina libro</button>
+      <button class="button" type="button" (click)="toggleFavorite()">
+        {{ book.preferito ? 'Rimuovi preferito' : 'Aggiungi preferito' }}
+      </button>
+    </div>
+
+    <div class="detail-actions state-actions">
+      <button class="button" type="button" (click)="changeState('Da leggere')">Da leggere</button>
+      <button class="button" type="button" (click)="changeState('In lettura')">In lettura</button>
+      <button class="button" type="button" (click)="changeState('Letto')">Letto</button>
+    </div>
+
+    <a routerLink="/" class="link-back">Torna alla home</a>
+  </div>
+</section>

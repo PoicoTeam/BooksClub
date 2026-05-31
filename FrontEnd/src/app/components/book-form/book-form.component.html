@@ -1,0 +1,26 @@
+<section class="book-form">
+  <h2>Aggiungi nuovo libro</h2>
+
+  <form (ngSubmit)="submit()">
+    <div class="field">
+      <label for="titolo">Titolo</label>
+      <input id="titolo" name="titolo" type="text" [(ngModel)]="titolo" placeholder="Titolo del libro" />
+    </div>
+
+    <div class="field">
+      <label for="autore">Autore</label>
+      <input id="autore" name="autore" type="text" [(ngModel)]="autore" placeholder="Nome autore" />
+    </div>
+
+    <div class="field">
+      <label for="anno">Anno</label>
+      <input id="anno" name="anno" type="number" [(ngModel)]="anno" placeholder="Anno (opzionale)" />
+    </div>
+
+    <div class="form-actions">
+      <button class="button" type="submit">Aggiungi libro</button>
+    </div>
+
+    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+  </form>
+</section>

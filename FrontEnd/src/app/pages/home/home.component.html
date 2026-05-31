@@ -1,0 +1,67 @@
+<main class="home-page">
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Fiction Library</h1>
+      <p>Scopri i migliori libri di fiction</p>
+    </div>
+  </section>
+
+  <div *ngIf="errorMessage" class="message error">{{ errorMessage }}</div>
+  <div *ngIf="openLibraryLoading" class="message loading">Caricamento in corso...</div>
+
+  <div *ngIf="!openLibraryLoading && carouselA && carouselA.length > 0" class="carousel-section">
+    <h2 class="carousel-title">Bestsellers Fiction</h2>
+    <div class="carousel">
+      <ul class="carousel-list">
+        <li *ngFor="let book of carouselA" class="book-card" (click)="openBookDetails(book)">
+          <div class="book-cover" *ngIf="book.cover_i">
+            <img 
+              [src]="'https://covers.openlibrary.org/b/id/' + book.cover_i + '-M.jpg'" 
+              [alt]="book.title"
+              class="cover-image">
+          </div>
+          <div class="book-info">
+            <h3 class="book-title">{{ book.title }}</h3>
+            <p class="book-author">
+              <ng-container *ngIf="book.author_name && book.author_name.length > 0; else noAuthorA">
+                {{ book.author_name[0] }}
+              </ng-container>
+              <ng-template #noAuthorA>Unknown Author</ng-template>
+            </p>
+            <p class="book-year">{{ book.first_publish_year || 'N/D' }}</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div *ngIf="!openLibraryLoading && carouselB && carouselB.length > 0" class="carousel-section">
+    <h2 class="carousel-title">More Fiction Classics</h2>
+    <div class="carousel">
+      <ul class="carousel-list">
+        <li *ngFor="let book of carouselB" class="book-card" (click)="openBookDetails(book)">
+          <div class="book-cover" *ngIf="book.cover_i">
+            <img 
+              [src]="'https://covers.openlibrary.org/b/id/' + book.cover_i + '-M.jpg'" 
+              [alt]="book.title"
+              class="cover-image">
+          </div>
+          <div class="book-info">
+            <h3 class="book-title">{{ book.title }}</h3>
+            <p class="book-author">
+              <ng-container *ngIf="book.author_name && book.author_name.length > 0; else noAuthorB">
+                {{ book.author_name[0] }}
+              </ng-container>
+              <ng-template #noAuthorB>Unknown Author</ng-template>
+            </p>
+            <p class="book-year">{{ book.first_publish_year || 'N/D' }}</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div *ngIf="!openLibraryLoading && (!carouselA || carouselA.length === 0)" class="empty-state">
+    Nessun libro disponibile
+  </div>
+</main>

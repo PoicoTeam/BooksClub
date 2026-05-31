@@ -1,0 +1,57 @@
+<main class="info-libro-page">
+  <div class="container">
+    <button class="back-button" (click)="goBack()">← Back</button>
+
+    <div *ngIf="loading" class="message loading">Caricamento dettagli libro...</div>
+    <div *ngIf="errorMessage" class="message error">{{ errorMessage }}</div>
+
+    <div *ngIf="!loading && bookDetails" class="book-detail-card">
+      <div class="book-detail-header">
+        <div class="book-cover-large" *ngIf="bookDetails.covers && bookDetails.covers.length > 0">
+          <img 
+            [src]="'https://covers.openlibrary.org/b/id/' + bookDetails.covers[0] + '-L.jpg'" 
+            [alt]="bookDetails.title"
+            class="cover-image-large">
+        </div>
+        <div class="book-header-info">
+          <h1 class="book-title-large">{{ bookDetails.title }}</h1>
+          <p class="book-subtitle" *ngIf="bookDetails.subtitle">{{ bookDetails.subtitle }}</p>
+          <div class="book-meta">
+            <span class="meta-item" *ngIf="bookDetails.authors && bookDetails.authors.length > 0">
+              <strong>Autore:</strong> {{ bookDetails.authors[0].name }}
+            </span>
+            <span class="meta-item" *ngIf="bookDetails.publish_date">
+              <strong>Data Pubblicazione:</strong> {{ bookDetails.publish_date }}
+            </span>
+            <span class="meta-item" *ngIf="bookDetails.publishers && bookDetails.publishers.length > 0">
+              <strong>Editore:</strong> {{ bookDetails.publishers[0] }}
+            </span>
+            <span class="meta-item" *ngIf="bookDetails.number_of_pages">
+              <strong>Pagine:</strong> {{ bookDetails.number_of_pages }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="book-description" *ngIf="bookDetails.description">
+        <h2>Descrizione</h2>
+        <p>{{ bookDetails.description }}</p>
+      </div>
+
+      <div class="book-details-grid" *ngIf="bookDetails.isbn || bookDetails.isbn_13 || bookDetails.languages">
+        <div class="detail-box">
+          <h3>ISBN</h3>
+          <p>{{ bookDetails.isbn ? bookDetails.isbn : (bookDetails.isbn_13 ? bookDetails.isbn_13 : 'N/D') }}</p>
+        </div>
+        <div class="detail-box">
+          <h3>Lingue</h3>
+          <p>{{ bookDetails.languages && bookDetails.languages.length > 0 ? bookDetails.languages.join(', ') : 'N/D' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!loading && !bookDetails && !errorMessage" class="empty-state">
+      Nessun dettaglio disponibile
+    </div>
+  </div>
+</main>

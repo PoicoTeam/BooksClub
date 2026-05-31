@@ -1,0 +1,51 @@
+<section class="book-list">
+  <h2>Elenco libri</h2>
+
+  <div *ngIf="books?.length; else emptyState">
+    <table class="book-table">
+      <thead>
+        <tr>
+          <th>Titolo</th>
+          <th>Autore</th>
+          <th>Anno</th>
+          <th>Stato</th>
+          <th>Preferito</th>
+          <th>Azioni</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let book of books">
+          <td>{{ book.titolo }}</td>
+          <td>{{ book.autore }}</td>
+          <td>{{ book.anno || '—' }}</td>
+          <td>{{ book.stato || 'N/D' }}</td>
+          <td>{{ book.preferito ? '★' : '—' }}</td>
+          <td class="actions-cell">
+            <a class="button secondary" [routerLink]="['/books', book._id]">Dettagli</a>
+            <button class="button" type="button" (click)="onToggleFavorite(book)">
+              {{ book.preferito ? 'Rimuovi preferito' : 'Aggiungi preferito' }}
+            </button>
+            <button class="button danger" type="button" (click)="onDelete(book._id)">Elimina</button>
+          </td>
+        </tr>
+        <tr *ngFor="let book of books" class="state-row">
+          <td colspan="6">
+            <label>
+              Cambia stato:
+              <select [value]="book.stato || ''" (change)="onStateChange(book, $event)">
+                <option value="">-- Seleziona --</option>
+                <option value="Da leggere">Da leggere</option>
+                <option value="In lettura">In lettura</option>
+                <option value="Letto">Letto</option>
+              </select>
+            </label>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <ng-template #emptyState>
+    <div class="empty-state">Nessun libro disponibile. Aggiungi il primo libro.</div>
+  </ng-template>
+</section>
