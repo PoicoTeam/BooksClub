@@ -1,6 +1,6 @@
-# BooksClub - PHP & MongoDB Docker Suite
+# BooksClub - PHP & MongoDB Docker Suite (Angular Backend)
 
-Questo progetto configura un ambiente di sviluppo completo per un'applicazione PHP 8.3 che comunica con un database NoSQL MongoDB, il tutto orchestrato con Docker.
+Questo progetto configura un ambiente di sviluppo completo per un'applicazione backend PHP 8.3 (Slim Framework) che comunica con un database NoSQL MongoDB, il tutto orchestrato con Docker. Il sistema è ingegnerizzato per fare da backend a un frontend in Angular, implementando il controllo degli accessi e la gestione dei dati per singolo utente tramite **Sessioni PHP native** e cookie, rispettando i vincoli di sicurezza del progetto.
 
 ---
 
@@ -11,8 +11,12 @@ Questo progetto configura un ambiente di sviluppo completo per un'applicazione P
 ├── build/
 │   ├── Dockerfile.php         # Configurazione immagine PHP + Driver Mongo
 │   └── entrypoint-php.sh      # Script di avvio (composer install + Apache)
-├── php/                       # Cartella sorgente della tua App (index.php, ecc.)
-├── docker-compose.yml         # Orchestrazione dei servizi
+├── php/
+│   ├── index.php              # Entrypoint dell'applicazione e routing Slim
+│   └── controllers/
+│       ├── AuthController.php # Registrazione, Login, Logout e controllo Sessione
+│       └── APIController.php  # Gestione Libri personali e funzioni Pannello Admin
+├── docker-compose.yml         # Orchestrazione dei servizi Docker
 └── README.md
 ```
 
@@ -21,24 +25,29 @@ Questo progetto configura un ambiente di sviluppo completo per un'applicazione P
 ## 🛠️ Servizi Inclusi
 
 ### PHP 8.3 (Apache)
-- Esposto sulla porta **8080**
-- Include il driver nativo **MongoDB**
-- Include **Composer**
+
+* Esposto sulla porta **8080**
+* Include il driver nativo **MongoDB**
+* Include **Composer**
+* Gestisce lo stato e l'autenticazione tramite cookie di sessione (`PHPSESSID`)
 
 ### MongoDB 7.0
-- Database principale
-- Esposto sulla porta **27017**
+
+* Database principale NoSQL
+* Esposto sulla porta **27017**
+* Gestisce due collezioni principali: `users` e `book` (collegate logicamente tramite l'ID utente)
 
 ### Mongo Express
-- Interfaccia grafica di gestione del database
-- Disponibile su: <http://localhost:8081>
+
+* Interfaccia grafica di gestione del database
+* Disponibile su: http://localhost:8081
 
 ---
 
 ## ⚙️ Requisiti
 
-- Docker installato sul PC
-- Docker Compose attivo
+* Docker installato sul PC
+* Docker Compose attivo
 
 ---
 
@@ -62,21 +71,21 @@ docker compose up -d --build
 
 ### 3. Accesso ai servizi
 
-| Servizio | URL |
-|-----------|------|
-| Applicazione PHP | http://localhost:8080 |
-| Pannello MongoDB | http://localhost:8081 |
+| Servizio               | URL                   |
+| ---------------------- | --------------------- |
+| Backend API (PHP Slim) | http://localhost:8080 |
+| Pannello Mongo Express | http://localhost:8081 |
 
-#### Credenziali
+#### Credenziali di Default
 
-**Mongo Express**
+**Mongo Express (Interfaccia web)**
 
 ```text
 Username: admin
 Password: pass
 ```
 
-**MongoDB**
+**MongoDB (Stringa di Connessione interna)**
 
 ```text
 Username: admin
@@ -85,136 +94,205 @@ Password: password123
 
 ---
 
-# 🧪 Comandi CURL per il Test (RESTful API)
+# 🧪 Comandi cURL per il Test (RESTful API & Sessioni)
 
-Utilizza questi comandi dal terminale per verificare il corretto funzionamento del backend senza usare il frontend.
+Utilizza questi comandi dal terminale per verificare il corretto funzionamento del backend e simulare il comportamento di Angular.
 
-> 💡 **Nota per Windows (CMD)**  
-> Se esegui i comandi con JSON nel body (`-d`), usa le barre rovesciate per proteggere le virgolette (`\"titolo\"`).
+> 💡 **Nota Fondamentale sui Cookie di Sessione**
+> Poiché il backend protegge le rotte tramite sessioni PHP, nei comandi `curl` vengono utilizzati:
+>
+> * `-c cookies.txt` → salva il cookie di sessione generato dal server
+> * `-b cookies.txt` → reinvia il cookie nelle richieste successive
 
 ---
 
-## 1. Gestione Core dei Libri
+## 1. Flusso di Autenticazione (`AuthController`)
 
-### Mostra l'elenco completo di tutti i libri
-*(ordinati A-Z per titolo)*
+### Registrazione di un Utente Standard (`user`)
 
 ```bash
-curl http://localhost:8080/books
+curl -X POST http://localhost:8080/register \
+-H "Content-Type: application/json" \
+-d "{\"username\":\"mario_rossi\",\"password\":\"password123\",\"ruolo\":\"user\"}"
 ```
 
-### Salva un nuovo libro nella libreria
+### Registrazione di un Amministratore (`admin`)
 
-Ritorna l'ID generato da MongoDB.
+```bash
+curl -X POST http://localhost:8080/register \
+-H "Content-Type: application/json" \
+-d "{\"username\":\"admin_boss\",\"password\":\"superpassword\",\"ruolo\":\"admin\"}"
+```
+
+### Login Utente
+
+Questo comando crea e popola il file locale `cookies.txt` con il token di sessione.
+
+```bash
+curl -X POST http://localhost:8080/login \
+-c cookies.txt \
+-H "Content-Type: application/json" \
+-d "{\"username\":\"mario_rossi\",\"password\":\"password123\"}"
+```
+
+### Verifica dello Stato della Sessione
+
+Utilizzato dall'AuthGuard di Angular.
+
+```bash
+curl -X GET http://localhost:8080/check-session -b cookies.txt
+```
+
+### Logout Utente
+
+```bash
+curl -X POST http://localhost:8080/logout -b cookies.txt
+```
+
+---
+
+## 2. Gestione dei Libri dell'Utente (`APIController`)
+
+Tutti i comandi di questa sezione richiedono che l'utente sia autenticato. I dati vengono automaticamente associati all'utente presente in sessione.
+
+### Salva un Nuovo Libro
 
 ```bash
 curl -X POST http://localhost:8080/books \
+-b cookies.txt \
 -H "Content-Type: application/json" \
 -d "{\"titolo\":\"Il Signore degli Anelli\",\"autore\":\"J.R.R. Tolkien\",\"anno\":1954,\"genere\":\"Fantasy\",\"editore\":\"Bompiani\",\"descrizione\":\"L epicita della Terra di Mezzo.\"}"
 ```
 
-### Mostra i dettagli di un singolo libro
-
-Sostituisci `ID_DEL_LIBRO` con l'ID reale restituito in fase di salvataggio.
+### Elenco dei Libri dell'Utente
 
 ```bash
-curl http://localhost:8080/books/ID_DEL_LIBRO
+curl -X GET http://localhost:8080/books -b cookies.txt
 ```
 
-### Modifica un libro esistente
-
-Aggiornamento completo della scheda.
+### Filtri Avanzati, Ricerca e Dashboard
 
 ```bash
+# Filtra per stato di lettura
+curl -X GET "http://localhost:8080/books?stato=da_leggere" -b cookies.txt
+
+# Mostra solo i preferiti
+curl -X GET "http://localhost:8080/books?preferito=1" -b cookies.txt
+
+# Ricerca per titolo o autore
+curl -X GET "http://localhost:8080/books?q=Tolkien" -b cookies.txt
+
+# Statistiche dashboard
+curl -X GET http://localhost:8080/stats -b cookies.txt
+```
+
+### Dettaglio, Aggiornamento e Rimozione di un Libro
+
+```bash
+# Dettaglio libro
+curl -X GET http://localhost:8080/books/ID_DEL_LIBRO -b cookies.txt
+
+# Aggiornamento completo
 curl -X PUT http://localhost:8080/books/ID_DEL_LIBRO \
+-b cookies.txt \
 -H "Content-Type: application/json" \
 -d "{\"titolo\":\"Il Signore degli Anelli - Nuova Edizione\",\"autore\":\"J.R.R. Tolkien\",\"anno\":1954,\"editore\":\"Bompiani\",\"voto\":5}"
-```
 
-### Elimina un libro
-
-```bash
-curl -X DELETE http://localhost:8080/books/ID_DEL_LIBRO
-```
-
----
-
-## 2. Ricerca, Filtri Avanzati e Dashboard
-
-### Filtra per stato di lettura
-
-Valori disponibili:
-
-- `da_leggere`
-- `in_lettura`
-- `letto`
-
-```bash
-curl http://localhost:8080/books?stato=da_leggere
-```
-
-### Mostra solo i preferiti
-
-```bash
-curl http://localhost:8080/books?preferito=1
-```
-
-### Ricerca globale testuale
-
-Cerca nel titolo o nell'autore (case insensitive).
-
-```bash
-curl http://localhost:8080/books?q=Tolkien
-```
-
-### Visualizza le statistiche generali
-
-Utile per i contatori della dashboard.
-
-```bash
-curl http://localhost:8080/stats
-```
-
----
-
-## 3. Stati e Preferiti (Aggiornamenti Parziali)
-
-### Cambia lo stato di lettura
-
-```bash
+# Aggiornamento stato
 curl -X PATCH http://localhost:8080/books/ID_DEL_LIBRO/state \
+-b cookies.txt \
 -H "Content-Type: application/json" \
 -d "{\"stato\":\"in_lettura\"}"
-```
 
-### Aggiungi/Rimuovi dai preferiti
-
-Imposta:
-
-- `true` → aggiunge ai preferiti
-- `false` → rimuove dai preferiti
-
-```bash
+# Preferiti
 curl -X PATCH http://localhost:8080/books/ID_DEL_LIBRO/favorite \
+-b cookies.txt \
 -H "Content-Type: application/json" \
 -d "{\"preferito\":true}"
+
+# Eliminazione
+curl -X DELETE http://localhost:8080/books/ID_DEL_LIBRO -b cookies.txt
+```
+
+### 🛑 Test del Vincolo di Bypass
+
+Tentativo di accesso senza cookie valido:
+
+```bash
+curl -X GET http://localhost:8080/books
+```
+
+**Risposta attesa:**
+
+```json
+{
+  "error": "Non autorizzato"
+}
+```
+
+Codice HTTP: `401 Unauthorized`
+
+---
+
+## 3. Pannello di Amministrazione (`APIController`)
+
+Effettua prima il login come amministratore:
+
+```bash
+curl -X POST http://localhost:8080/login \
+-c admin_cookies.txt \
+-H "Content-Type: application/json" \
+-d "{\"username\":\"admin_boss\",\"password\":\"superpassword\"}"
+```
+
+### Statistiche Globali Utenti
+
+```bash
+curl -X GET http://localhost:8080/admin/stats -b admin_cookies.txt
+```
+
+### Elenco Utenti
+
+```bash
+curl -X GET http://localhost:8080/admin/users -b admin_cookies.txt
+```
+
+### Reset Password Utente
+
+Imposta la password di default a `1234@`.
+
+```bash
+curl -X PATCH http://localhost:8080/admin/users/ID_UTENTE/reset-password \
+-b admin_cookies.txt
+```
+
+### Eliminazione di un Singolo Utente
+
+```bash
+curl -X DELETE http://localhost:8080/admin/users/ID_UTENTE \
+-b admin_cookies.txt
+```
+
+### Eliminazione Massiva di Tutti gli Utenti
+
+```bash
+curl -X DELETE http://localhost:8080/admin/users \
+-b admin_cookies.txt
 ```
 
 ---
 
 ## 📦 Gestione Dipendenze (Composer)
 
-Per installare nuove librerie (ad esempio il driver MongoDB per PHP):
+Per installare nuove librerie all'interno del container:
 
 ```bash
-docker compose exec my_web composer require mongodb/mongodb
+docker compose exec my_web composer require nome/libreria
 ```
 
 ---
 
 ## 🔗 Stringa di Connessione PHP
-
-Per collegare l'applicazione al database MongoDB:
 
 ```php
 $client = new MongoDB\Client(
@@ -226,7 +304,7 @@ $client = new MongoDB\Client(
 
 ## 🧹 Pulizia
 
-Per fermare i servizi e rimuovere anche i volumi Docker (eliminando tutti i dati del database):
+Per arrestare i container ed eliminare i volumi Docker (cancellando tutti i dati):
 
 ```bash
 docker compose down -v

@@ -13,15 +13,11 @@ class APIController
         $this->container = $container;
     }
 
-    private function getCollection()
+    private function getDb()
     {
-        $db = $this->container->get('db');
-        return $db->selectCollection('book');
+        return $this->container->get('db');
     }
 
-    /**
-     * Helper per rispondere in JSON standardizzato
-     */
     private function jsonResponse(Response $response, array $data, int $status = 200): Response
     {
         $response->getBody()->write(json_encode($data));
@@ -29,37 +25,56 @@ class APIController
     }
 
     /**
-     * GET /books - Lista libri con filtri (stato, preferito) e ricerca testuale
+     * Helper per verificare se l'utente è loggato (Vincolo Sessione)
      */
+    private function getLoggedUserId()
+    {
+        return $_SESSION['user_id'] ?? null;
+    }
+
+    /**
+     * Helper per verificare se chi scrive è l'Admin
+     */
+    private function isAdmin()
+    {
+        return isset($_SESSION['ruolo']) && $_SESSION['ruolo'] === 'admin';
+    }
+
+    // ==========================================
+    // SEZIONE GESTIONE LIBRI (DATI UTENTE)
+    // ==========================================
+
     public function index(Request $request, Response $response, array $args)
     {
-        $collection = $this->getCollection();
+        $userId = $this->getLoggedUserId();
+        if (!$userId) return $this->jsonResponse($response, ["error" => "Non autorizzato"], 401);
+
+        $collection = $this->getDb()->selectCollection('book');
         $queryParams = $request->getQueryParams();
         
-        $filter = [];
+        // VINCOLO: L'utente vede ESCLUSIVAMENTE i propri dati
+        $filter = ['utente_id' => $userId];
 
-        // Filtro per stato (letto / da_leggere / in_lettura)
         if (!empty($queryParams['stato'])) {
             $filter['stato'] = $queryParams['stato'];
         }
 
-        // Filtro per preferiti (?preferito=1)
         if (isset($queryParams['preferito'])) {
             $filter['preferito'] = $queryParams['preferito'] === '1';
         }
 
-        // Ricerca globale per Titolo o Autore (?q=Umberto+Eco)
         if (!empty($queryParams['q'])) {
-            $searchRegex = new \MongoDB\BSON\Regex($queryParams['q'], 'i'); // 'i' sta per case-insensitive
+            $searchRegex = new \MongoDB\BSON\Regex($queryParams['q'], 'i');
             $filter['$or'] = [
                 ['titolo' => $searchRegex],
                 ['autore' => $searchRegex]
             ];
         }
 
-        $cursor = $collection->find($filter, ['sort' => ['titolo' => 1]]); // Ordina per titolo A-Z
+        $cursor = $collection->find($filter, ['sort' => ['titolo' => 1]]);
         $libri = iterator_to_array($cursor);
 
+        // Se non ci sono dati, mandiamo un array vuoto (Angular mostrerà la scritta richiesta)
         $libriFormattati = array_map(function($libro) {
             if (isset($libro['_id'])) $libro['_id'] = (string) $libro['_id'];
             return $libro;
@@ -68,171 +83,226 @@ class APIController
         return $this->jsonResponse($response, $libriFormattati);
     }
 
-    /**
-     * GET /books/{idBook} - Dettaglio singolo libro
-     */
     public function show(Request $request, Response $response, array $args)
     {
+        $userId = $this->getLoggedUserId();
         $id = $args['idBook'] ?? '';
-        if (empty($id)) return $this->jsonResponse($response, ["error" => "ID mancante"], 400);
+        if (!$userId) return $this->jsonResponse($response, ["error" => "Non autorizzato"], 401);
 
-        $collection = $this->getCollection();
-        $libro = $collection->findOne(['_id' => new \MongoDB\BSON\ObjectId($id)]);
+        $collection = $this->getDb()->selectCollection('book');
+        // Filtriamo sia per ID libro che per utente_id per sicurezza binaria
+        $libro = $collection->findOne([
+            '_id' => new \MongoDB\BSON\ObjectId($id),
+            'utente_id' => $userId
+        ]);
 
-        if (!$libro) {
-            return $this->jsonResponse($response, ["error" => "Libro non trovato"], 404);
-        }
+        if (!$libro) return $this->jsonResponse($response, ["error" => "Libro non trovato o non tuo"], 404);
 
         $libro['_id'] = (string) $libro['_id'];
         return $this->jsonResponse($response, (array)$libro);
     }
 
-    /**
-     * POST /books - Inserimento libro
-     */
     public function store(Request $request, Response $response, array $args)
     {
-        $data = $request->getParsedBody() ?? json_decode((string)$request->getBody(), true);
+        $userId = $this->getLoggedUserId();
+        if (!$userId) return $this->jsonResponse($response, ["error" => "Non autorizzato"], 401);
 
+        $data = $request->getParsedBody() ?? json_decode((string)$request->getBody(), true);
         $titolo = $data['titolo'] ?? '';
         $autore = $data['autore'] ?? '';
 
         if (empty($titolo) || empty($autore)) {
-            return $this->jsonResponse($response, ["status" => "error", "message" => "Titolo e Autore obbligatori"], 400);
+            return $this->jsonResponse($response, ["error" => "Titolo e Autore obbligatori"], 400);
         }
 
-        $collection = $this->getCollection();
+        $collection = $this->getDb()->selectCollection('book');
         $result = $collection->insertOne([
+            'utente_id'   => $userId, // LEGHIAMO IL DATO ALL'UTENTE LOGGATO (Vincolo)
             'titolo'      => $titolo,
             'autore'      => $autore,
             'anno'        => isset($data['anno']) ? (int)$data['anno'] : null,
-            'img'         => $data['img'] ?? '',
             'editore'     => $data['editore'] ?? '',
             'isbn'        => $data['isbn'] ?? '',
             'descrizione' => $data['descrizione'] ?? '',
             'genere'      => $data['genere'] ?? '',
-            'stato'       => $data['stato'] ?? 'da_leggere', // Default se non specificato
+            'stato'       => $data['stato'] ?? 'da_leggere',
             'preferito'   => isset($data['preferito']) && ($data['preferito'] == true || $data['preferito'] == '1'),
-            'voto'        => isset($data['voto']) ? (int)$data['voto'] : null, // Voto da 1 a 5 stelle opzionale
+            'voto'        => isset($data['voto']) ? (int)$data['voto'] : null,
             'creato_il'   => new \MongoDB\BSON\UTCDateTime()
         ]);
 
-        return $this->jsonResponse($response, [
-            "status" => "success",
-            "message" => "Libro salvato!",
-            "id" => (string)$result->getInsertedId()
-        ], 201);
+        return $this->jsonResponse($response, ["status" => "success", "id" => (string)$result->getInsertedId()], 201);
     }
 
-    /**
-     * PUT /books/{idBook} - Modifica totale dati libro
-     */
     public function update(Request $request, Response $response, array $args)
     {
+        $userId = $this->getLoggedUserId();
         $id = $args['idBook'] ?? '';
+        if (!$userId) return $this->jsonResponse($response, ["error" => "Non autorizzato"], 401);
+
         $data = $request->getParsedBody() ?? json_decode((string)$request->getBody(), true);
 
-        if (empty($id) || empty($data)) {
-            return $this->jsonResponse($response, ["error" => "Dati o ID mancanti"], 400);
-        }
-
-        $collection = $this->getCollection();
-        $updateData = [
-            'titolo'      => $data['titolo'] ?? '',
-            'autore'      => $data['autore'] ?? '',
-            'anno'        => isset($data['anno']) ? (int)$data['anno'] : null,
-            'img'         => $data['img'] ?? '',
-            'editore'     => $data['editore'] ?? '',
-            'isbn'        => $data['isbn'] ?? '',
-            'descrizione' => $data['descrizione'] ?? '',
-            'genere'      => $data['genere'] ?? '',
-            'voto'        => isset($data['voto']) ? (int)$data['voto'] : null,
-        ];
-
+        $collection = $this->getDb()->selectCollection('book');
         $collection->updateOne(
-            ['_id' => new \MongoDB\BSON\ObjectId($id)],
-            ['$set' => $updateData]
+            ['_id' => new \MongoDB\BSON\ObjectId($id), 'utente_id' => $userId],
+            ['$set' => [
+                'titolo'      => $data['titolo'] ?? '',
+                'autore'      => $data['autore'] ?? '',
+                'anno'        => isset($data['anno']) ? (int)$data['anno'] : null,
+                'editore'     => $data['editore'] ?? '',
+                'isbn'        => $data['isbn'] ?? '',
+                'descrizione' => $data['descrizione'] ?? '',
+                'genere'      => $data['genere'] ?? '',
+                'voto'        => isset($data['voto']) ? (int)$data['voto'] : null,
+            ]]
         );
 
-        return $this->jsonResponse($response, ["status" => "success", "message" => "Libro aggiornato con successo"]);
+        return $this->jsonResponse($response, ["status" => "success", "message" => "Libro aggiornato"]);
     }
 
-    /**
-     * PATCH /books/{idBook}/state - Cambia stato di lettura
-     */
     public function updateState(Request $request, Response $response, array $args)
     { 
+        $userId = $this->getLoggedUserId();
         $id = $args['idBook'] ?? '';
+        if (!$userId) return $this->jsonResponse($response, ["error" => "Non autorizzato"], 401);
+
         $data = $request->getParsedBody() ?? json_decode((string)$request->getBody(), true);
-        $nuovoStato = $data['stato'] ?? ''; // letto, da_leggere, in_lettura
+        $nuovoStato = $data['stato'] ?? '';
 
-        if (empty($id) || empty($nuovoStato)) {
-            return $this->jsonResponse($response, ["error" => "ID o Stato mancante"], 400);
-        }
-
-        $collection = $this->getCollection();
+        $collection = $this->getDb()->selectCollection('book');
         $collection->updateOne(
-            ['_id' => new \MongoDB\BSON\ObjectId($id)],
+            ['_id' => new \MongoDB\BSON\ObjectId($id), 'utente_id' => $userId],
             ['$set' => ['stato' => $nuovoStato]]
         );
         
-        return $this->jsonResponse($response, ["status" => "success", "message" => "Stato aggiornato in '$nuovoStato'"]);
+        return $this->jsonResponse($response, ["status" => "success"]);
     }
 
-    /**
-     * PATCH /books/{idBook}/favorite - Toggle preferiti
-     */
     public function toggleFavorite(Request $request, Response $response, array $args)
     { 
+        $userId = $this->getLoggedUserId();
         $id = $args['idBook'] ?? '';
+        if (!$userId) return $this->jsonResponse($response, ["error" => "Non autorizzato"], 401);
+
         $data = $request->getParsedBody() ?? json_decode((string)$request->getBody(), true);
-        
         $isPreferito = isset($data['preferito']) && ($data['preferito'] == true || $data['preferito'] == '1');
 
-        if (empty($id)) return $this->jsonResponse($response, ["error" => "ID mancante"], 400);
-
-        $collection = $this->getCollection();
+        $collection = $this->getDb()->selectCollection('book');
         $collection->updateOne(
-            ['_id' => new \MongoDB\BSON\ObjectId($id)],
+            ['_id' => new \MongoDB\BSON\ObjectId($id), 'utente_id' => $userId],
             ['$set' => ['preferito' => $isPreferito]]
         );
         
-        return $this->jsonResponse($response, ["status" => "success", "message" => $isPreferito ? "Aggiunto ai preferiti" : "Rimosso dai preferiti"]);
+        return $this->jsonResponse($response, ["status" => "success"]);
     }
 
-    /**
-     * DELETE /books/{idBook} - Elimina libro
-     */
     public function delete(Request $request, Response $response, array $args)
     {
+        $userId = $this->getLoggedUserId();
         $id = $args['idBook'] ?? '';
-        if (empty($id)) return $this->jsonResponse($response, ["error" => "ID mancante"], 400);
+        if (!$userId) return $this->jsonResponse($response, ["error" => "Non autorizzato"], 401);
 
-        $collection = $this->getCollection();
-        $collection->deleteOne(['_id' => new \MongoDB\BSON\ObjectId($id)]);
+        $collection = $this->getDb()->selectCollection('book');
+        $collection->deleteOne(['_id' => new \MongoDB\BSON\ObjectId($id), 'utente_id' => $userId]);
         
-        return $this->jsonResponse($response, ["status" => "success", "message" => "Libro eliminato definitivo"]);
+        return $this->jsonResponse($response, ["status" => "success", "message" => "Libro eliminato"]);
     }
 
-    /**
-     * GET /stats - Statistiche della libreria (Utilissimo per la dashboard)
-     */
     public function getStats(Request $request, Response $response, array $args)
     {
-        $collection = $this->getCollection();
+        $userId = $this->getLoggedUserId();
+        if (!$userId) return $this->jsonResponse($response, ["error" => "Non autorizzato"], 401);
 
-        $totale      = $collection->countDocuments([]);
-        $letti       = $collection->countDocuments(['stato' => 'letto']);
-        $daLeggere   = $collection->countDocuments(['stato' => 'da_leggere']);
-        $inLettura   = $collection->countDocuments(['stato' => 'in_lettura']);
-        $preferiti   = $collection->countDocuments(['preferito' => true]);
+        $collection = $this->getDb()->selectCollection('book');
 
         return $this->jsonResponse($response, [
-            "totale_libri" => $totale,
-            "letti"        => $letti,
-            "da_leggere"   => $daLeggere,
-            "in_lettura"   => $inLettura,
-            "preferiti"    => $preferiti
+            "totale_libri" => $collection->countDocuments(['utente_id' => $userId]),
+            "letti"        => $collection->countDocuments(['utente_id' => $userId, 'stato' => 'letto']),
+            "da_leggere"   => $collection->countDocuments(['utente_id' => $userId, 'stato' => 'da_leggere']),
+            "in_lettura"   => $collection->countDocuments(['utente_id' => $userId, 'stato' => 'in_lettura']),
+            "preferiti"    => $collection->countDocuments(['utente_id' => $userId, 'preferito' => true])
         ]);
+    }
+
+    // ==========================================
+    // SEZIONE VINCOLI ADMIN (PAGINA ADMIN)
+    // ==========================================
+
+    public function getAdminStats(Request $request, Response $response, array $args)
+    {
+        if (!$this->isAdmin()) return $this->jsonResponse($response, ["error" => "Vietato ai non-admin"], 403);
+
+        $usersColl = $this->getDb()->selectCollection('users');
+        // VINCOLO: Mostrare il numero totale di utenti registrati (escludendo l'admin)
+        $totaleUtenti = $usersColl->countDocuments(['ruolo' => 'user']);
+
+        return $this->jsonResponse($response, ["numero_utenti_registrati" => $totaleUtenti]);
+    }
+
+    public function listUsers(Request $request, Response $response, array $args)
+    {
+        if (!$this->isAdmin()) return $this->jsonResponse($response, ["error" => "Vietato"], 403);
+
+        $usersColl = $this->getDb()->selectCollection('users');
+        // Escludiamo l'admin stesso per sicurezza sui vincoli di eliminazione
+        $cursor = $usersColl->find(['ruolo' => 'user']);
+        $utenti = iterator_to_array($cursor);
+
+        $utentiFormattati = array_map(function($u) {
+            return ['id' => (string)$u['_id'], 'username' => $u['username']];
+        }, $utenti);
+
+        return $this->jsonResponse($response, $utentiFormattati);
+    }
+
+    public function deleteUser(Request $request, Response $response, array $args)
+    {
+        if (!$this->isAdmin()) return $this->jsonResponse($response, ["error" => "Vietato"], 403);
+        $idUser = $args['idUser'] ?? '';
+
+        $db = $this->getDb();
+        // 1. Cancella i libri associati all'utente
+        $db->selectCollection('book')->deleteMany(['utente_id' => $idUser]);
+        // 2. Cancella l'utente
+        $db->selectCollection('users')->deleteOne(['_id' => new \MongoDB\BSON\ObjectId($idUser)]);
+
+        return $this->jsonResponse($response, ["status" => "success", "message" => "Utente e relativi dati eliminati"]);
+    }
+
+    public function deleteAllUsers(Request $request, Response $response, array $args)
+    {
+        if (!$this->isAdmin()) return $this->jsonResponse($response, ["error" => "Vietato"], 403);
+
+        $db = $this->getDb();
+        // VINCOLO: Cancella TUTTI gli utenti tranne l'admin
+        $usersColl = $db->selectCollection('users');
+        
+        // Troviamo gli ID di tutti gli user normali prima di eliminarli, per pulire i loro libri
+        $cursor = $usersColl->find(['ruolo' => 'user']);
+        foreach ($cursor as $user) {
+            $userIdStr = (string)$user['_id'];
+            $db->selectCollection('book')->deleteMany(['utente_id' => $userIdStr]);
+        }
+
+        $usersColl->deleteMany(['ruolo' => 'user']);
+
+        return $this->jsonResponse($response, ["status" => "success", "message" => "Tutti gli utenti (tranne admin) e i loro dati eliminati"]);
+    }
+
+    public function resetPassword(Request $request, Response $response, array $args)
+    {
+        if (!$this->isAdmin()) return $this->jsonResponse($response, ["error" => "Vietato"], 403);
+        $idUser = $args['idUser'] ?? '';
+
+        // VINCOLO: Reset a valore di default ("1234@")
+        $defaultPasswordHashed = password_hash("1234@", PASSWORD_BCRYPT);
+
+        $usersColl = $this->getDb()->selectCollection('users');
+        $usersColl->updateOne(
+            ['_id' => new \MongoDB\BSON\ObjectId($idUser)],
+            ['$set' => ['password' => $defaultPasswordHashed]]
+        );
+
+        return $this->jsonResponse($response, ["status" => "success", "message" => "Password resettata a 1234@"]);
     }
 }
