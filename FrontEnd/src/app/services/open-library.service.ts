@@ -8,6 +8,7 @@ import { OpenLibraryDoc, OpenLibrarySearchResult } from '../models/open-library.
 })
 export class OpenLibraryService {
   private readonly baseUrl = 'https://openlibrary.org';
+  private readonly backendUrl = 'http://localhost:8080';
 
   constructor(private readonly http: HttpClient) {}
 
@@ -26,7 +27,7 @@ export class OpenLibraryService {
   }
 
   getBookDetails(olid: string): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/books/${olid}.json`).pipe(
+    return this.http.get<any>(`${this.backendUrl}/open-library/${olid}`).pipe(
       catchError((error) => {
         console.error('Errore caricamento dettagli libro', error);
         return throwError(() => new Error('Impossibile caricare i dettagli del libro.'));
