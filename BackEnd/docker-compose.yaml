@@ -33,6 +33,9 @@ services:
       ME_CONFIG_MONGODB_URL: mongodb://admin:password123@mongodb:27017/
     depends_on:
       - mongodb
+  #Per accedere a mongo-express le credenziali sono: 
+  #User: admin
+  #Password: pass
 
 volumes: 
   mongo_data:

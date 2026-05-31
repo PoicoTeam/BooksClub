@@ -1,17 +1,19 @@
-import { Component, HostListener } from "@angular/core";
+import { Component, HostListener, ViewEncapsulation } from "@angular/core";
+
 
 @Component({
   selector: "app-navbar",
   imports: [],
   templateUrl: "./navbar.html",
   styleUrl: "./navbar.css",
+  encapsulation: ViewEncapsulation.None
 })
 export class Navbar {
   isDropdownOpen = false;
   isMobileMenuOpen = false;
 
   toggleDropdown(event: Event) {
-    event.stopPropagation(); 
+    event.stopPropagation();
     this.isDropdownOpen = !this.isDropdownOpen;
   }
 
@@ -19,7 +21,6 @@ export class Navbar {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
   }
 
-  // Chiude il menu a tendina se si clicca fuori
   @HostListener('document:click', ['$event'])
   closeDropdown(event: Event) {
     this.isDropdownOpen = false;
