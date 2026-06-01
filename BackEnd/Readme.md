@@ -92,6 +92,56 @@ Username: admin
 Password: password123
 ```
 
+> ⚠️ Queste credenziali servono solo per **MongoDB / Mongo Express**, non per l’accesso all’app BooksClub.
+
+---
+
+## 👤 Account applicazione (utenti `users`)
+
+Il backend **non crea automaticamente** un utente amministratore all’avvio di Docker.  
+Ogni account (user o admin) va registrato tramite `POST /register` con il campo `ruolo`.
+
+### Account admin consigliato per i test
+
+Dopo `docker compose up`, crea un amministratore con una delle modalità sotto.
+
+| Campo    | Valore suggerito   |
+| -------- | ------------------ |
+| Username | `admin_boss`       |
+| Password | `superpassword`    |
+| Ruolo    | `admin`            |
+
+**Opzione A — Frontend Angular** (`http://localhost:4200/register`):
+
+1. Compila username e password (es. tabella sopra).
+2. In «Tipo account» seleziona **Amministratore — solo per test**.
+3. Accedi da `/login` → verrai reindirizzato al pannello admin.
+
+**Opzione B — cURL** (vedi anche sezione sotto):
+
+```bash
+curl -X POST http://localhost:8080/register \
+  -H "Content-Type: application/json" \
+  -d "{\"username\":\"admin_boss\",\"password\":\"superpassword\",\"ruolo\":\"admin\"}"
+```
+
+Poi login:
+
+```bash
+curl -X POST http://localhost:8080/login \
+  -c admin_cookies.txt \
+  -H "Content-Type: application/json" \
+  -d "{\"username\":\"admin_boss\",\"password\":\"superpassword\"}"
+```
+
+### Utente standard di esempio (libreria personale)
+
+| Campo    | Valore           |
+| -------- | ---------------- |
+| Username | `mario_rossi`    |
+| Password | `password123`    |
+| Ruolo    | `user` (default) |
+
 ---
 
 # 🧪 Comandi cURL per il Test (RESTful API & Sessioni)

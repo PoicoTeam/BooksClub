@@ -14,7 +14,7 @@ Interfaccia SPA per la **libreria personale** BooksClub: catalogo libri per uten
 ## Funzionalità
 
 ### Autenticazione
-- Registrazione (solo ruolo `user`)
+- Registrazione come `user` o `admin` (quest’ultimo solo per test in sviluppo)
 - Login / logout con cookie di sessione (`withCredentials`)
 - `authGuard` e `adminGuard` sulle rotte protette
 
@@ -111,7 +111,21 @@ src/app/
 
 Per CORS e sessioni, il backend deve consentire l’origine `http://localhost:4200` e le credenziali. Vedi la documentazione nella cartella `BackEnd/`.
 
+## Account admin per i test
+
+Il backend non ha un admin preinstallato. Per provare il pannello `/admin`:
+
+1. Avvia backend e frontend.
+2. Vai su [http://localhost:4200/register](http://localhost:4200/register).
+3. Scegli **Amministratore — solo per test** oppure usa le credenziali documentate in [BackEnd/Readme.md](../BackEnd/Readme.md):
+
+| Username     | Password        | Ruolo  |
+| ------------ | --------------- | ------ |
+| `admin_boss` | `superpassword` | `admin` |
+
+Dettagli API e comandi cURL: `BackEnd/Readme.md`.
+
 ## Note
 
 - La paginazione è **solo frontend**: quando il catalogo cresce molto, in futuro si potrà aggiungere `limit`/`offset` sul backend senza cambiare il flusso utente.
-- Gli account admin non si creano dalla registrazione pubblica; vanno provisionati nel database.
+- In produzione andrebbe disabilitata la registrazione con ruolo `admin` (oggi utile solo per sviluppo e demo).

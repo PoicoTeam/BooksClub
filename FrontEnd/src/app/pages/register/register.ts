@@ -26,6 +26,7 @@ export class RegisterComponent {
     this.registerForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       password: ['', [Validators.required, Validators.minLength(4)]],
+      ruolo: ['user' as const],
     });
   }
 
@@ -37,12 +38,13 @@ export class RegisterComponent {
     this.errorMessage = '';
     this.successMessage = '';
 
-    const { username, password } = this.registerForm.value;
-    this.authService.register({ username, password }).subscribe({
+    const { username, password, ruolo } = this.registerForm.value;
+    this.authService.register({ username, password, ruolo }).subscribe({
       next: (response) => {
         if (response.status === 'success') {
-          this.successMessage = 'Registrazione completata! Reindirizzamento...';
-          this.notification.success('Account creato con successo.');
+          const ruoloLabel = ruolo === 'admin' ? 'amministratore' : 'utente';
+          this.successMessage = `Registrazione come ${ruoloLabel} completata! Reindirizzamento...`;
+          this.notification.success(`Account ${ruoloLabel} creato.`);
           setTimeout(() => this.router.navigate(['/login']), 2000);
         }
       },

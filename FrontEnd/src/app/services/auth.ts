@@ -28,7 +28,10 @@ export class Auth {
   register(userData: RegisterPayload): Observable<AuthSuccessResponse> {
     return this.http.post<AuthSuccessResponse>(
       `${this.apiUrl}/register`,
-      { ...userData, ruolo: 'user' },
+      {
+        ...userData,
+        ruolo: userData.ruolo ?? 'user',
+      },
       this.httpOptions
     );
   }

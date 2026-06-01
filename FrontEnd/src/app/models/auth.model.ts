@@ -3,7 +3,7 @@ import { User } from './user.model';
 export interface RegisterPayload {
   username: string;
   password: string;
-  ruolo?: 'user';
+  ruolo?: User['ruolo'];
 }
 
 export interface LoginPayload {

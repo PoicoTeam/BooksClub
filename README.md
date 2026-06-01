@@ -33,7 +33,7 @@ BooksClub è un’applicazione web per gestire una **libreria personale di libri
 | Modulo | Percorso | Documentazione |
 |--------|----------|----------------|
 | Frontend | `FrontEnd/` | [FrontEnd/README.md](FrontEnd/README.md) |
-| Backend | `BackEnd/` | `BackEnd/README.md` (se presente) |
+| Backend | `BackEnd/` | [BackEnd/README.md](BackEnd/README.md) |
 
 ---
 
@@ -70,13 +70,32 @@ npm start
 
 ## Flusso utente tipico
 
-1. **Registrazione** → account `user`
-2. **Login** → dashboard con statistiche e griglia libri
+1. **Registrazione** → account `user` (libreria personale) oppure `admin` solo per test
+2. **Login** → dashboard (user) o pannello admin (`/admin`)
 3. **Aggiungi libro** → compilazione form (URL copertina opzionale ma validato)
 4. **Dettaglio** → cambio stato, preferiti, modifica o elimina
-5. **Admin** (se previsto nel DB) → pannello gestione utenti su `/admin`
+5. **Admin** → gestione utenti su `/admin` (richiede ruolo `admin`)
 
 Dopo ogni operazione sul catalogo, la dashboard aggiorna automaticamente libri e contatori.
+
+### Account admin di test (nessun seed automatico)
+
+Il backend **non** inserisce un amministratore al primo avvio: va creato con `POST /register` e `"ruolo":"admin"`.
+
+| Modalità | Dove | Credenziali suggerite |
+| -------- | ---- | ----------------------- |
+| UI Angular | http://localhost:4200/register → «Amministratore — solo per test» | A scelta (es. sotto) |
+| API / cURL | Vedi [BackEnd/Readme.md](BackEnd/Readme.md) | `admin_boss` / `superpassword` |
+
+Esempio rapido dopo `docker compose up`:
+
+```text
+Username: admin_boss
+Password: superpassword
+Ruolo:    admin
+```
+
+Documentazione completa (curl, MongoDB, pannello admin): **[BackEnd/Readme.md](BackEnd/Readme.md)**.
 
 ---
 
@@ -110,7 +129,7 @@ git rm -r --cached FrontEnd/.angular
 - Sessioni lato server (`$_SESSION`, cookie `PHPSESSID`)
 - Ogni utente vede solo i propri libri (`utente_id` sul backend)
 - Rotte admin protette da ruolo
-- Registrazione pubblica solo come `user` (il frontend non espone più la scelta “admin”)
+- Registrazione `admin` esposta nel frontend **solo per test**; in produzione va rimossa o bloccata lato API
 
 ---
 
