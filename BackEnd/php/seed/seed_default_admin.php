@@ -14,12 +14,16 @@ use MongoDB\Client;
 const DEFAULT_ADMIN_USERNAME = 'admin';
 const DEFAULT_ADMIN_PASSWORD = 'Admin@1234';
 
-// connessione a MongoDB (stessi valori usati in index.php, sovrascrivibili via env)
-$uri = getenv('MONGO_URI') ?: 'mongodb://admin:password123@mongodb:27017';
+// CORRETTO: Host impostato su 'my_mongodb', password su 'pass' e aggiunto '?authSource=admin'
+$uri = getenv('MONGO_URI') ?: 'mongodb://admin:pass@my_mongodb:27017/?authSource=admin';
 $dbName = getenv('MONGO_DB') ?: 'bookShop';
 
 try {
     $client = new Client($uri);
+    
+    // Forziamo un comando rapido (ping) per verificare subito se i dati di login sono corretti
+    $client->selectDatabase('admin')->command(['ping' => 1]);
+
     $users = $client->selectDatabase($dbName)->selectCollection('users');
 
     // evita duplicati: se admin esiste già non fare nulla
@@ -41,5 +45,5 @@ try {
     exit(0);
 } catch (Throwable $e) {
     fwrite(STDERR, "[seed] Errore: " . $e->getMessage() . "\n");
-    exit(1);
+    exit(1); // Questo codice 1 dice all'entrypoint che la connessione è fallita, spingendolo a riprovare
 }

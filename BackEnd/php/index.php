@@ -43,7 +43,8 @@ $container = new \DI\Container();
   Iniettiamo l'istanza del DB nel container per usarla nei controller
 */
 $container->set('db', function (ContainerInterface $container) {
-    $uri = "mongodb://admin:password123@mongodb:27017"; 
+    // CORRETTO: l'host è 'my_mongodb' e la password è 'pass' come da configurazione docker
+    $uri = "mongodb://admin:pass@my_mongodb:27017/?authSource=admin"; 
     $client = new Client($uri);
     return $client->selectDatabase('bookShop');
 });
