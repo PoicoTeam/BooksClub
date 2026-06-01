@@ -1,14 +1,16 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router'
-import { CommonModule } from '@angular/common';
-import { Navbar } from './components/navbar/navbar';
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { ThemeService } from './services/theme';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CommonModule, Navbar],
-  templateUrl: './app.html',
-  styleUrl: './app.css'
+  standalone: true,
+  imports: [RouterOutlet],
+  template: `
+    <router-outlet></router-outlet>
+  `
 })
-export class App {
-  protected readonly title = signal('FrontEnd');
+export class AppComponent {
+  // Iniettiamo il servizio del tema per assicurarci che venga inizializzato subito
+  constructor(private themeService: ThemeService) {}
 }

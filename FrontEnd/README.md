@@ -1,59 +1,101 @@
-# FrontEnd
+# 📚 BooksClub - Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.10.
+Questo è il modulo frontend dell'applicazione **BooksClub**, sviluppato con **Angular**. L'applicazione permette la gestione di un catalogo personale di libri, con autenticazione utente e supporto per il tema Dark/Light.
 
-## Development server
+## 🚀 Tecnologie Utilizzate
 
-To start a local development server, run:
+- Angular 17+ (Standalone Components)
+- Tailwind CSS (per lo styling)
+- RxJS (per la gestione dei flussi di dati asincroni)
+- TypeScript
+
+## 🛠️ Funzionalità
+
+### 🔐 Autenticazione
+- Login
+- Registrazione
+- Protezione delle rotte tramite `AuthGuard`
+
+### 📚 Dashboard
+- Visualizzazione dinamica dei libri caricati dal database
+
+### ✏️ CRUD
+- Possibilità di aggiungere nuovi libri al proprio catalogo
+
+### 🎨 Temi
+- Supporto nativo per modalità **Dark** e **Light**
+
+### 🛡️ Sicurezza
+- Gestione delle sessioni tramite `withCredentials` verso il backend PHP
+
+## ⚙️ Configurazione e Avvio
+
+### Prerequisiti
+
+- Node.js (v18+)
+- Angular CLI
+
+```bash
+npm install -g @angular/cli
+```
+
+### Installazione
+
+1. Entra nella cartella del frontend:
+
+```bash
+cd FrontEnd
+```
+
+2. Installa le dipendenze:
+
+```bash
+npm install
+```
+
+### Sviluppo
+
+Per avviare il server di sviluppo locale:
 
 ```bash
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+L'applicazione sarà accessibile all'indirizzo:
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
+```text
+http://localhost:4200
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## 📁 Struttura del Progetto
 
-```bash
-ng generate --help
+```text
+src/
+└── app/
+    ├── pages/      # Componenti delle pagine (Dashboard, Login, AddBook, ecc.)
+    ├── services/   # Servizi di comunicazione con il backend e ThemeService
+    └── guards/     # Logiche di protezione delle rotte (auth.guard.ts)
 ```
 
-## Building
+### Directory principali
 
-To build the project run:
+- `src/app/pages/`  
+  Contiene i componenti delle pagine dell'applicazione (Dashboard, Login, AddBook, ecc.).
 
-```bash
-ng build
+- `src/app/services/`  
+  Contiene i servizi per la comunicazione con il backend (`AuthService`, `BookService`) e il `ThemeService`.
+
+- `src/app/guards/`  
+  Contiene le logiche di protezione delle rotte (`auth.guard.ts`).
+
+## 🔗 Integrazione Backend
+
+Il frontend comunica con il backend PHP tramite chiamate HTTP.
+
+Assicurati che il backend sia attivo e configurato correttamente per gestire le intestazioni CORS:
+
+```http
+Access-Control-Allow-Origin: http://localhost:4200
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Inoltre, per la gestione delle sessioni tramite cookie, il backend deve supportare le richieste con credenziali (`withCredentials`).

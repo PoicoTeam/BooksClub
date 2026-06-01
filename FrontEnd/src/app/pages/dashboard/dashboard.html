@@ -1,0 +1,62 @@
+<div class="min-h-screen bg-orange-50/30 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+  
+  <nav class="bg-white dark:bg-gray-900 border-b border-orange-100 dark:border-gray-800 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+    <div class="flex items-center gap-2">
+      <span class="text-2xl font-black text-orange-600 dark:text-indigo-400">📚 BooksClub</span>
+    </div>
+
+    <div class="flex items-center gap-4">
+      <div class="relative hidden md:block">
+        <input type="text" placeholder="Cerca un libro..." 
+          class="w-64 pl-10 pr-4 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-transparent focus:ring-2 focus:ring-orange-500 dark:focus:ring-indigo-500 outline-none transition-all" />
+        <span class="absolute left-3 top-2.5 text-gray-400">🔍</span>
+      </div>
+
+      <button (click)="toggleTheme()" type="button" class="p-2 rounded-xl bg-orange-50 dark:bg-gray-800 text-orange-600 dark:text-indigo-400 border border-orange-100 dark:border-gray-700 hover:scale-105 transition-all cursor-pointer">
+        <span *ngIf="isDark$ | async">☀️</span>
+        <span *ngIf="!(isDark$ | async)">🌙</span>
+      </button>
+
+      <button (click)="logout()" class="px-4 py-2 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-xl shadow-md transition-all cursor-pointer">
+        Esci
+      </button>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto p-6 space-y-8">
+    
+    <div class="bg-white dark:bg-gray-900 border border-orange-100 dark:border-gray-800 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div>
+        <h2 class="text-2xl font-bold">Bentornato nel Club! 👋</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Gestisci i tuoi libri da questa dashboard.</p>
+      </div>
+      <button class="...">+ Aggiungi Libro</button> 
+
+      <button routerLink="/add-book" class="px-5 py-2.5 font-semibold text-white bg-orange-600 hover:bg-orange-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 rounded-xl shadow-lg transition-all cursor-pointer">
+        + Aggiungi Libro
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      
+      <div *ngFor="let book of books" class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col">
+        <div class="h-48 bg-orange-100 dark:bg-gray-800 flex items-center justify-center text-4xl">📖</div>
+        <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-orange-600 dark:text-indigo-400">{{ book.genere || 'Libro' }}</span>
+            <h3 class="font-bold text-lg mt-1 line-clamp-1">{{ book.titolo }}</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400">{{ book.autore }}</p>
+          </div>
+          <button class="w-full py-2 text-sm font-medium text-orange-600 dark:text-indigo-400 bg-orange-50 dark:bg-gray-800/50 hover:bg-orange-100 dark:hover:bg-gray-800 rounded-xl transition-all cursor-pointer">
+            Vedi Dettagli
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="books.length === 0" class="col-span-full py-20 text-center text-gray-400">
+        <p>Nessun libro trovato nel database.</p>
+      </div>
+
+    </div>
+  </main>
+</div>
