@@ -1,11 +1,20 @@
 <?php
+/*
+  ENTRYPOINT PRINCIPALE - BooksClub Backend
+  Gestisce le sessioni, i permessi CORS, la connessione al DB
+  e lo smistamento di tutte le rotte API (Routing).
+*/
+
+// avvio sessione php
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// per visualizzare gli errori (usato nella fase di sviluppo)
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+// configurazione header http (cors)
 header('Content-Type: application/json');
 header("Access-Control-Allow-Origin: http://localhost:4200");
 header("Access-Control-Allow-Headers: X-Requested-With, Content-Type, Accept, Origin, Authorization");
@@ -22,46 +31,64 @@ use MongoDB\Client;
 
 require __DIR__ . '/vendor/autoload.php';
 
-// Includiamo ENTRAMBI i controller
+// inclusione dei controller che contengono logica di business
 require __DIR__ . '/controllers/AuthController.php';
 require __DIR__ . '/controllers/APIController.php';
 
+// container per gestire le dipendenze (dependency injection)
 $container = new \DI\Container();
 
+/*
+  Configurazione del Database MongoDB
+  Iniettiamo l'istanza del DB nel container per usarla nei controller
+*/
 $container->set('db', function (ContainerInterface $container) {
-    $uri = "mongodb://admin:password123@mongodb:27017";
+    $uri = "mongodb://admin:password123@mongodb:27017"; 
     $client = new Client($uri);
     return $client->selectDatabase('bookShop');
 });
 
+// inizializzazione dell'app Slim con il container configurato
 AppFactory::setContainer($container);
 $app = AppFactory::create();
 
+// middleware
 $app->addBodyParsingMiddleware(); 
 $app->addRoutingMiddleware();
 $app->addErrorMiddleware(true, true, true);
 
-// --- ROTTE DI AUTENTICAZIONE (Puntano a AuthController) ---
-$app->post('/register', 'AuthController:register');
-$app->post('/login', 'AuthController:login');
-$app->post('/logout', 'AuthController:logout');
-$app->get('/check-session', 'AuthController:checkSession');
+// --- DEFINIZIONE DELLE ROTTE ---
 
-// --- ROTTE LIBRI (Puntano a APIController) ---
-$app->get('/books', 'APIController:index');
-$app->get('/books/{idBook}', 'APIController:show');
-$app->get('/stats', 'APIController:getStats');
-$app->post('/books', 'APIController:store');
-$app->put('/books/{idBook}', 'APIController:update');
-$app->patch('/books/{idBook}/state', 'APIController:updateState');
-$app->patch('/books/{idBook}/favorite', 'APIController:toggleFavorite');
-$app->delete('/books/{idBook}', 'APIController:delete');
+/*
+  ROTTE DI AUTENTICAZIONE (AuthController)
+  Gestiscono la creazione dell'account, l'accesso e la sicurezza.
+*/
+$app->post('/register', 'AuthController:register');    // registrazione nuovo utente
+$app->post('/login', 'AuthController:login');          // login 
+$app->post('/logout', 'AuthController:logout');         // logout
+$app->get('/check-session', 'AuthController:checkSession'); // verifica se l'utente è ancora loggato
 
-// --- ROTTE ADMIN (Puntano a APIController) ---
-$app->get('/admin/stats', 'APIController:getAdminStats');
-$app->get('/admin/users', 'APIController:listUsers');
-$app->delete('/admin/users/{idUser}', 'APIController:deleteUser');
-$app->delete('/admin/users', 'APIController:deleteAllUsers');
-$app->patch('/admin/users/{idUser}/reset-password', 'APIController:resetPassword');
+/*
+  ROTTE GESTIONE LIBRI (APIController)
+  Operazioni CRUD (Create, Read, Update, Delete) sui libri dell'utente loggato.
+*/
+$app->get('/books', 'APIController:index');                 // lista libri 
+$app->get('/books/{idBook}', 'APIController:show');         // dettaglio di un singolo libro
+$app->get('/stats', 'APIController:getStats');              // statistiche 
+$app->post('/books', 'APIController:store');                // aggiunta di un nuovo libro
+$app->put('/books/{idBook}', 'APIController:update');       // modifica del libro
+$app->patch('/books/{idBook}/state', 'APIController:updateState'); // cambio stato (es: da leggere)
+$app->patch('/books/{idBook}/favorite', 'APIController:toggleFavorite'); // aggiungi/rimuovi dai preferiti
+$app->delete('/books/{idBook}', 'APIController:delete');    // eliminazione libro
+
+/*
+  ROTTE AMMINISTRATORE (APIController)
+  Funzioni riservate agli utenti con ruolo 'admin'.
+*/
+$app->get('/admin/stats', 'APIController:getAdminStats');    // numero utenti registrati 
+$app->get('/admin/users', 'APIController:listUsers');        // lista di tutti gli utenti registrati
+$app->delete('/admin/users/{idUser}', 'APIController:deleteUser'); // elimina un utente specifico
+$app->delete('/admin/users', 'APIController:deleteAllUsers');      // cancellazione di tutti gli utenti
+$app->patch('/admin/users/{idUser}/reset-password', 'APIController:resetPassword'); // reset password utente di default
 
 $app->run();
