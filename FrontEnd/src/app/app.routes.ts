@@ -21,11 +21,19 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/dashboard/dashboard').then(m => m.DashboardComponent),
         canActivate: [authGuard]
     },
+    
     // Rotta per aggiungere un libro
     {
         path: 'add-book',
         loadComponent: () => import('./pages/add-book/add-book').then(m => m.AddBookComponent),
         canActivate: [authGuard] 
+    },
+
+    // NUOVA ROTTA: Dettagli del singolo libro (accetta il parametro dinamico :idBook)
+    {
+        path: 'book-details/:idBook',
+        loadComponent: () => import('./pages/book-details/book-details').then(m => m.BookDetailsComponent),
+        canActivate: [authGuard]
     },
 
     // Rotta jolly: se l'utente scrive un URL inventato, torna al login

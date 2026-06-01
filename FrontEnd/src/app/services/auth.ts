@@ -8,19 +8,20 @@ import { User } from '../models/user.model';
 })
 export class Auth {
   private http = inject(HttpClient);
-
-
   private apiUrl = '/api'; 
 
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  // Opzioni HTTP obbligatorie per far funzionare le $_SESSION di PHP con Angular
   private httpOptions = { withCredentials: true };
 
   public get currentUserValue(): User | null {
     return this.currentUserSubject.value;
   }
+
+  // ==========================================
+  //  ROTTE DI AUTENTICAZIONE STANDARD
+  // ==========================================
 
   // 1. Registrazione (POST /register)
   register(userData: any): Observable<any> {
@@ -59,5 +60,34 @@ export class Auth {
         this.currentUserSubject.next(null);
       })
     );
+  }
+
+  // ==========================================
+  //  ROTTE AMMINISTRATORE (Ruolo: admin)
+  // ==========================================
+
+  // 5. Recupera le statistiche globali della piattaforma (es. numero utenti totali)
+  getAdminStats(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/admin/stats`, this.httpOptions);
+  }
+
+  // 6. Recupera la lista di tutti gli utenti registrati
+  listUsers(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/admin/users`, this.httpOptions);
+  }
+
+  // 7. Elimina un utente specifico tramite ID
+  deleteUser(idUser: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/admin/users/${idUser}`, this.httpOptions);
+  }
+
+  // 8. Cancella TUTTI gli utenti dal database (Usa con cautela!)
+  deleteAllUsers(): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/admin/users`, this.httpOptions);
+  }
+
+  // 9. Resetta la password di un utente specifico a quella di default
+  resetPassword(idUser: string): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/admin/users/${idUser}/reset-password`, {}, this.httpOptions);
   }
 }

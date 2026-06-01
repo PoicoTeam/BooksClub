@@ -14,15 +14,36 @@ export class AddBookComponent {
   private bookService = inject(Book);
   private router = inject(Router);
 
+  // Inizializzazione del form inclusa la proprietà per la copertina
   bookForm: FormGroup = this.fb.group({
     titolo: ['', Validators.required],
-    autore: ['', Validators.required]
+    autore: ['', Validators.required],
+    anno: [null],
+    editore: [''],
+    isbn: [''],
+    descrizione: [''],
+    genere: [''],
+    voto: [null, [Validators.min(1), Validators.max(5)]],
+    copertina: [''] // <-- Nuovo controllo reattivo associato all'input HTML
   });
 
   saveBook() {
     if (this.bookForm.valid) {
-      this.bookService.addBook(this.bookForm.value).subscribe(() => {
-        this.router.navigate(['/dashboard']);
+      // Estraiamo i dati dal form
+      const bookData = this.bookForm.value;
+
+      // Trasformiamo esplicitamente in numeri interi i valori se presenti
+      if (bookData.anno) bookData.anno = parseInt(bookData.anno, 10);
+      if (bookData.voto) bookData.voto = parseInt(bookData.voto, 10);
+
+      // Invio dell'oggetto aggiornato al servizio che comunica con l'API PHP
+      this.bookService.addBook(bookData).subscribe({
+        next: () => {
+          this.router.navigate(['/dashboard']);
+        },
+        error: (err) => {
+          console.error("Errore durante il salvataggio del libro:", err);
+        }
       });
     }
   }

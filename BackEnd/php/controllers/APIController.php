@@ -17,15 +17,15 @@ class APIController
         $this->container = $container;
     }
 
-    // metodo per recuperare l'istanza del database MongoDB dal container
+    // Metodo per recuperare l'istanza del database MongoDB dal container
     private function getDb()
     {
         return $this->container->get('db');
     }
 
     /*
-      metodo per standardizzare le risposte JSON inviate al frontend (Angular)
-      configura il corpo della risposta, l'header JSON e lo status code HTTP.
+      Metodo per standardizzare le risposte JSON inviate al frontend (Angular)
+      Configura il corpo della risposta, l'header JSON e lo status code HTTP.
     */
     private function jsonResponse(Response $response, array $data, int $status = 200): Response
     {
@@ -33,13 +33,13 @@ class APIController
         return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
     }
 
-    // helper per verificare se l'utente è loggato (recupera l'ID dalla sessione)
+    // Helper per verificare se l'utente è loggato (recupera l'ID dalla sessione)
     private function getLoggedUserId()
     {
         return $_SESSION['user_id'] ?? null;
     }
 
-    // helper per verificare se l'utente in sessione possiede il ruolo 'admin'
+    // Helper per verificare se l'utente in sessione possiede il ruolo 'admin'
     private function isAdmin()
     {
         return isset($_SESSION['ruolo']) && $_SESSION['ruolo'] === 'admin';
@@ -61,7 +61,7 @@ class APIController
         $collection = $this->getDb()->selectCollection('book');
         $queryParams = $request->getQueryParams();
         
-        // vincolo di sicurezza: l'utente vede esclusivamente i propri dati
+        // Vincolo di sicurezza: l'utente vede esclusivamente i propri dati
         $filter = ['utente_id' => $userId];
 
         if (!empty($queryParams['stato'])) {
@@ -83,7 +83,7 @@ class APIController
         $cursor = $collection->find($filter, ['sort' => ['titolo' => 1]]);
         $libri = iterator_to_array($cursor);
 
-        // converte gli ObjectId di MongoDB in stringhe standard per Angular
+        // Converte gli ObjectId di MongoDB in stringhe standard per Angular
         $libriFormattati = array_map(function($libro) {
             if (isset($libro['_id'])) $libro['_id'] = (string) $libro['_id'];
             return $libro;
@@ -104,7 +104,7 @@ class APIController
 
         $collection = $this->getDb()->selectCollection('book');
         
-        // filtriamo sia per ID libro che per utente_id per sicurezza binaria
+        // Filtriamo sia per ID libro che per utente_id per sicurezza binaria
         $libro = $collection->findOne([
             '_id' => new \MongoDB\BSON\ObjectId($id),
             'utente_id' => $userId
@@ -118,7 +118,8 @@ class APIController
 
     /*
       POST /books
-      salva un nuovo libro nel database associandolo indissolubilmente all'utente loggato
+      Salva un nuovo libro nel database associandolo indissolubilmente all'utente loggato.
+      Include la mappatura del link della copertina.
     */
     public function store(Request $request, Response $response, array $args)
     {
@@ -135,7 +136,7 @@ class APIController
 
         $collection = $this->getDb()->selectCollection('book');
         
-        // inserimento del documento NoSQL legato alla sessione utente
+        // Inserimento del documento NoSQL legato alla sessione utente con link copertina
         $result = $collection->insertOne([
             'utente_id'   => $userId, 
             'titolo'      => $titolo,
@@ -148,6 +149,7 @@ class APIController
             'stato'       => $data['stato'] ?? 'da_leggere',
             'preferito'   => isset($data['preferito']) && ($data['preferito'] == true || $data['preferito'] == '1'),
             'voto'        => isset($data['voto']) ? (int)$data['voto'] : null,
+            'copertina'   => $data['copertina'] ?? '', // <-- Link immagine inserito qui
             'creato_il'   => new \MongoDB\BSON\UTCDateTime()
         ]);
 
@@ -156,7 +158,7 @@ class APIController
 
     /*
       PUT /books/{idBook}
-      esegue la modifica integrale di tutti i campi testuali del libro selezionato
+      Esegue la modifica integrale di tutti i campi informativi del libro incluso l'URL copertina.
     */
     public function update(Request $request, Response $response, array $args)
     {
@@ -168,7 +170,7 @@ class APIController
 
         $collection = $this->getDb()->selectCollection('book');
         
-        // aggiorna solo se ID libro e utente_id combaciano
+        // Aggiorna solo se ID libro e utente_id combaciano
         $collection->updateOne(
             ['_id' => new \MongoDB\BSON\ObjectId($id), 'utente_id' => $userId],
             ['$set' => [
@@ -180,6 +182,7 @@ class APIController
                 'descrizione' => $data['descrizione'] ?? '',
                 'genere'      => $data['genere'] ?? '',
                 'voto'        => isset($data['voto']) ? (int)$data['voto'] : null,
+                'copertina'   => $data['copertina'] ?? '' // <-- Link immagine aggiornato qui
             ]]
         );
 
@@ -239,7 +242,7 @@ class APIController
 
     /*
       GET /stats
-      calcola i contatori statistici personali in tempo reale per la dashboard utente.
+      Calcola i contatori statistici personali in tempo reale per la dashboard utente.
     */
     public function getStats(Request $request, Response $response, array $args)
     {
@@ -257,10 +260,13 @@ class APIController
         ]);
     }
 
-    // SEZIONE VINCOLI ADMIN (PAGINA ADMIN)
+    // ==========================================
+    // SEZIONE VINCOLI ADMIN (PANNELLO AMMINISTRATORE)
+    // ==========================================
+
     /*
       GET /admin/stats
-      restituisce il numero totale di utenti registrati (escludendo gli admin)
+      Restituisce il numero totale di utenti registrati (escludendo gli admin).
     */
     public function getAdminStats(Request $request, Response $response, array $args)
     {
@@ -274,7 +280,7 @@ class APIController
 
     /*
       GET /admin/users
-      elenca tutti gli utenti con ruolo standard iscritti all'applicazione.
+      Elenca tutti gli utenti con ruolo standard iscritti all'applicazione.
     */
     public function listUsers(Request $request, Response $response, array $args)
     {
@@ -293,7 +299,7 @@ class APIController
 
     /*
       DELETE /admin/users/{idUser}
-      elimina un utente e tutti i libri ad esso collegati (rimozione a cascata).
+      Elimina un utente e tutti i libri ad esso collegati (rimozione a cascata).
     */
     public function deleteUser(Request $request, Response $response, array $args)
     {
@@ -302,10 +308,10 @@ class APIController
 
         $db = $this->getDb();
         
-        // 1 - cancella prima i libri associati all'utente 
+        // 1 - Cancella prima i libri associati all'utente 
         $db->selectCollection('book')->deleteMany(['utente_id' => $idUser]);
         
-        // 2 - cancella l'utente dalla collezione users
+        // 2 - Cancella l'utente dalla collezione users
         $db->selectCollection('users')->deleteOne(['_id' => new \MongoDB\BSON\ObjectId($idUser)]);
 
         return $this->jsonResponse($response, ["status" => "success", "message" => "Utente e relativi dati eliminati"]);
@@ -313,7 +319,7 @@ class APIController
 
     /*
       DELETE /admin/users
-      pulisce l'intero database eliminando tutti gli utenti normali e i loro cataloghi
+      Pulisce l'intero database eliminando tutti gli utenti normali e i loro cataloghi.
     */
     public function deleteAllUsers(Request $request, Response $response, array $args)
     {
@@ -322,14 +328,14 @@ class APIController
         $db = $this->getDb();
         $usersColl = $db->selectCollection('users');
         
-        // ciclo di pulizia dei cataloghi libri di ciascun utente standard
+        // Ciclo di pulizia dei cataloghi libri di ciascun utente standard
         $cursor = $usersColl->find(['ruolo' => 'user']);
         foreach ($cursor as $user) {
             $userIdStr = (string)$user['_id'];
             $db->selectCollection('book')->deleteMany(['utente_id' => $userIdStr]);
         }
 
-        // cancella in blocco solo gli utenti, preservando l'admin
+        // Cancella in blocco solo gli utenti, preservando l'admin
         $usersColl->deleteMany(['ruolo' => 'user']);
 
         return $this->jsonResponse($response, ["status" => "success", "message" => "Tutti gli utenti (tranne admin) e i loro dati eliminati"]);
@@ -337,14 +343,14 @@ class APIController
 
     /*
       PATCH /admin/users/{idUser}/reset-password
-      resetta forzatamente la password di un utente impostandola al valore di default "1234@".
+      Resetta forzatamente la password di un utente impostandola al valore di default "1234@".
     */
     public function resetPassword(Request $request, Response $response, array $args)
     {
         if (!$this->isAdmin()) return $this->jsonResponse($response, ["error" => "Vietato"], 403);
         $idUser = $args['idUser'] ?? '';
 
-        // reset a valore di default fisso cifrato con BCRYPT
+        // Reset a valore di default fisso cifrato con BCRYPT
         $defaultPasswordHashed = password_hash("1234@", PASSWORD_BCRYPT);
 
         $usersColl = $this->getDb()->selectCollection('users');
