@@ -9,6 +9,11 @@ import { Book as BookModel, BookStato } from '../../models/book.model';
 import { getApiErrorMessage } from '../../utils/api-error';
 import { markCoverFailed, shouldShowCover } from '../../utils/book-cover';
 
+/*
+  PAGINA DETTAGLIO LIBRO (BookDetailsComponent)
+  Mostra scheda completa del volume: copertina, sinossi, stato lettura, preferiti,
+  modifica ed eliminazione. L'id arriva dalla rotta book-details/:idBook.
+*/
 @Component({
   selector: 'app-book-details',
   standalone: true,
@@ -32,6 +37,7 @@ export class BookDetailsComponent implements OnInit {
   errorMessage = '';
 
   ngOnInit() {
+    // recupera l'ID del libro dalla rotta dinamica
     const idBook = this.route.snapshot.paramMap.get('idBook');
 
     if (idBook) {

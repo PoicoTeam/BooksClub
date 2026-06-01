@@ -15,4 +15,14 @@ if [ -d "vendor" ]; then
   chown -R "$HOST_UID:$HOST_GID" /var/www/html/vendor
 fi
 
+# --- SEED ADMIN PREDEFINITO ---
+# Crea l'utente admin se assente (credenziali in BackEnd/Readme.md: admin / Admin@1234)
+echo "In attesa di MongoDB e seed admin..."
+for i in $(seq 1 30); do
+  if php seed/seed_default_admin.php; then
+    break
+  fi
+  sleep 2
+done
+
 exec apache2-foreground

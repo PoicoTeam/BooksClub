@@ -4,6 +4,11 @@ import { CommonModule } from '@angular/common';
 import { Notification } from '../../services/notification';
 import { getApiErrorMessage } from '../../utils/api-error';
 
+/*
+  PAGINA PANNELLO ADMIN (AdminPanel)
+  Gestione utenti piattaforma: statistiche, elenco, eliminazione e reset password.
+  Accessibile solo con ruolo admin (adminGuard).
+*/
 @Component({
   selector: 'app-admin-panel',
   standalone: true,

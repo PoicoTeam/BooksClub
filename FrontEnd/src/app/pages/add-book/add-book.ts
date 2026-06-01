@@ -14,6 +14,10 @@ import { BookPayload } from '../../models/book.model';
 import { getApiErrorMessage } from '../../utils/api-error';
 import { optionalUrlValidator } from '../../utils/validators';
 
+/*
+  PAGINA AGGIUNGI LIBRO (AddBookComponent)
+  Form reattivo per POST /books: titolo, autore, metadati, stato lettura e URL copertina.
+*/
 @Component({
   selector: 'app-add-book',
   standalone: true,
@@ -29,6 +33,7 @@ export class AddBookComponent {
 
   saving = false;
 
+  // definizione campi allineati al documento MongoDB lato backend
   bookForm: FormGroup = this.fb.group({
     titolo: ['', Validators.required],
     autore: ['', Validators.required],

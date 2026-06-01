@@ -9,6 +9,11 @@ export interface ToastMessage {
   text: string;
 }
 
+/*
+  SERVIZIO NOTIFICHE (Notification)
+  Mostra messaggi toast in alto a destra (successo, errore, avvisi).
+  Sostituisce gli alert() nativi per una UX più coerente.
+*/
 @Injectable({ providedIn: 'root' })
 export class Notification {
   private nextId = 1;
@@ -39,6 +44,7 @@ export class Notification {
   private show(type: ToastType, text: string, durationMs: number): void {
     const toast: ToastMessage = { id: this.nextId++, type, text };
     const current = this.messagesSubject.value;
+    // massimo 4 toast visibili contemporaneamente
     this.messagesSubject.next([...current, toast].slice(-4));
 
     window.setTimeout(() => this.dismiss(toast.id), durationMs);

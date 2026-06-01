@@ -4,6 +4,11 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Auth } from '../../services/auth';
 import { ThemeService } from '../../services/theme';
 
+/*
+  COMPONENTE NAVBAR (NavbarComponent)
+  Barra di navigazione condivisa: variant "app" (area autenticata) o "auth" (login/register).
+  Mostra link libreria, tema chiaro/scuro e logout.
+*/
 @Component({
   selector: 'app-navbar',
   standalone: true,
@@ -27,6 +32,7 @@ export class NavbarComponent implements OnInit {
     if (user) {
       this.applyUser(user.username, user.ruolo);
     } else if (this.variant === 'app') {
+      // in area protetta recupera sessione se non ancora in memoria
       this.auth.checkSession().subscribe({
         next: (res) => {
           if (res.logged && res.username && res.ruolo) {

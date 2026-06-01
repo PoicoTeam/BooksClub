@@ -3,19 +3,22 @@ import { Router } from '@angular/router';
 import { Auth } from '../services/auth';
 import { map, of, catchError } from 'rxjs';
 
+/*
+  AUTH GUARD (authGuard)
+  Protegge le rotte dell'area autenticata (dashboard, libri, ecc.).
+  Chiama GET /check-session: se non loggato reindirizza a /login.
+*/
 export const authGuard = () => {
   const authService = inject(Auth);
   const router = inject(Router);
 
-  // Controlliamo la sessione dal server
   return authService.checkSession().pipe(
-    map(res => {
+    map((res) => {
       if (res.logged) {
         return true;
-      } else {
-        router.navigate(['/login']);
-        return false;
       }
+      router.navigate(['/login']);
+      return false;
     }),
     catchError(() => {
       router.navigate(['/login']);

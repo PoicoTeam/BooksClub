@@ -70,32 +70,25 @@ npm start
 
 ## Flusso utente tipico
 
-1. **Registrazione** → account `user` (libreria personale) oppure `admin` solo per test
-2. **Login** → dashboard (user) o pannello admin (`/admin`)
+1. **Registrazione** → account `user` (libreria personale)
+2. **Login** → dashboard (user) oppure admin con credenziali predefinite (vedi sotto)
 3. **Aggiungi libro** → compilazione form (URL copertina opzionale ma validato)
 4. **Dettaglio** → cambio stato, preferiti, modifica o elimina
 5. **Admin** → gestione utenti su `/admin` (richiede ruolo `admin`)
 
 Dopo ogni operazione sul catalogo, la dashboard aggiorna automaticamente libri e contatori.
 
-### Account admin di test (nessun seed automatico)
+### Account amministratore predefinito
 
-Il backend **non** inserisce un amministratore al primo avvio: va creato con `POST /register` e `"ruolo":"admin"`.
+All’avvio di Docker il backend esegue un **seed** che crea l’admin (se mancante):
 
-| Modalità | Dove | Credenziali suggerite |
-| -------- | ---- | ----------------------- |
-| UI Angular | http://localhost:4200/register → «Amministratore — solo per test» | A scelta (es. sotto) |
-| API / cURL | Vedi [BackEnd/Readme.md](BackEnd/Readme.md) | `admin_boss` / `superpassword` |
+| Username | Password     | Pannello   |
+| -------- | ------------ | ---------- |
+| `admin`  | `Admin@1234` | `/admin`   |
 
-Esempio rapido dopo `docker compose up`:
+Login: http://localhost:4200/login — non serve registrarsi come admin (la registrazione è solo per utenti `user`).
 
-```text
-Username: admin_boss
-Password: superpassword
-Ruolo:    admin
-```
-
-Documentazione completa (curl, MongoDB, pannello admin): **[BackEnd/Readme.md](BackEnd/Readme.md)**.
+Documentazione API e MongoDB: **[BackEnd/Readme.md](BackEnd/Readme.md)**.
 
 ---
 
@@ -129,7 +122,7 @@ git rm -r --cached FrontEnd/.angular
 - Sessioni lato server (`$_SESSION`, cookie `PHPSESSID`)
 - Ogni utente vede solo i propri libri (`utente_id` sul backend)
 - Rotte admin protette da ruolo
-- Registrazione `admin` esposta nel frontend **solo per test**; in produzione va rimossa o bloccata lato API
+- L’admin è creato solo dal seed; la registrazione pubblica non può creare account `admin`
 
 ---
 
@@ -147,7 +140,6 @@ git rm -r --cached FrontEnd/.angular
 
 - Paginazione server-side (`limit` / `offset` su `GET /books`)
 - Upload file copertina (oggi solo URL)
-- Test e2e e documentazione OpenAPI
 - Ordinamento personalizzato (titolo, data, voto)
 
 ---

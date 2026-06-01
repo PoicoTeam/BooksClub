@@ -4,6 +4,10 @@ import { filter } from 'rxjs/operators';
 import { NavbarComponent } from '../../components/navbar/navbar';
 import { FooterComponent } from '../../components/footer/footer';
 
+/*
+  LAYOUT AREA AUTENTICATA (AppLayoutComponent)
+  Wrapper con navbar, footer e animazione leggera al cambio rotta (dashboard, libri, admin).
+*/
 @Component({
   selector: 'app-app-layout',
   standalone: true,
@@ -15,6 +19,7 @@ export class AppLayoutComponent {
   pageAnimate = true;
 
   constructor() {
+    // riattiva l'animazione CSS ad ogni NavigationEnd
     this.router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe(() => {
       this.pageAnimate = false;
       requestAnimationFrame(() => {

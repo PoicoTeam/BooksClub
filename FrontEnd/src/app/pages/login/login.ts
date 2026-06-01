@@ -6,6 +6,11 @@ import { Auth } from '../../services/auth';
 import { Notification } from '../../services/notification';
 import { getApiErrorMessage } from '../../utils/api-error';
 
+/*
+  PAGINA LOGIN (LoginComponent)
+  Form di accesso: invia credenziali a POST /login e reindirizza
+  alla dashboard (user) o al pannello admin in base al ruolo in sessione.
+*/
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -35,10 +40,12 @@ export class LoginComponent {
     }
 
     this.errorMessage = '';
+
     this.authService.login(this.loginForm.value).subscribe({
       next: (response) => {
         if (response.status === 'success') {
           this.notification.success('Accesso effettuato.');
+          // admin seed → /admin, utente normale → /dashboard
           const target = response.ruolo === 'admin' ? '/admin' : '/dashboard';
           this.router.navigate([target]);
         } else {

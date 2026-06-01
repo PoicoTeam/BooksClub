@@ -12,8 +12,14 @@ import { User } from '../../models/user.model';
 import { getApiErrorMessage } from '../../utils/api-error';
 import { markCoverFailed, shouldShowCover } from '../../utils/book-cover';
 
+// numero di card libri per pagina (paginazione lato client)
 export const DASHBOARD_PAGE_SIZE = 12;
 
+/*
+  PAGINA DASHBOARD (DashboardComponent)
+  Libreria personale: statistiche, ricerca, filtri, griglia libri e paginazione.
+  Si aggiorna quando LibraryEvents segnala un CRUD sui libri.
+*/
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -41,6 +47,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   loadingBooks = false;
 
   ngOnInit() {
+    // recupera username per il messaggio di benvenuto
     const user = this.authService.currentUserValue;
     if (user) {
       this.applyUser(user);
@@ -56,6 +63,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       );
     }
 
+    // ascolta modifiche al catalogo (add/edit/delete da altre pagine)
     this.subscriptions.add(
       this.libraryEvents.catalogChanged$.subscribe(() => this.refreshCatalog())
     );

@@ -1,3 +1,8 @@
+/*
+  MODELLI LIBRO (Book)
+  Allineati ai documenti MongoDB e alle risposte di APIController.
+*/
+
 export type BookStato = 'da_leggere' | 'in_lettura' | 'letto';
 
 export interface Book {
@@ -13,10 +18,11 @@ export interface Book {
   preferito?: boolean;
   voto?: number | null;
   copertina?: string;
-  /** Usato solo in UI quando il caricamento dell'immagine fallisce */
+  /** flag solo frontend: true se l'URL copertina non carica l'immagine */
   copertinaFallita?: boolean;
 }
 
+// body per POST /books e PUT /books/{id}
 export interface BookPayload {
   titolo: string;
   autore: string;
@@ -31,6 +37,7 @@ export interface BookPayload {
   copertina?: string;
 }
 
+// risposta GET /stats
 export interface BookStats {
   totale_libri: number;
   letti: number;

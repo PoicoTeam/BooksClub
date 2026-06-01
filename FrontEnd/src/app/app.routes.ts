@@ -2,9 +2,16 @@ import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth-guard';
 import { adminGuard } from './guards/admin-guard';
 
+/*
+  DEFINIZIONE DELLE ROTTE (routes)
+  Due layout principali: AuthLayout (login/register) e AppLayout (area autenticata).
+  Le pagine sono caricate in lazy loading per ridurre il bundle iniziale.
+*/
 export const routes: Routes = [
+  // rotta iniziale: reindirizza al login
   { path: '', redirectTo: 'login', pathMatch: 'full' },
 
+  // --- ROTTE PUBBLICHE (autenticazione) ---
   {
     path: '',
     loadComponent: () =>
@@ -21,6 +28,7 @@ export const routes: Routes = [
     ],
   },
 
+  // --- ROTTE PROTETTE (libreria personale + admin) ---
   {
     path: '',
     loadComponent: () =>
@@ -52,5 +60,6 @@ export const routes: Routes = [
     ],
   },
 
+  // rotta jolly: URL non validi tornano al login
   { path: '**', redirectTo: 'login' },
 ];

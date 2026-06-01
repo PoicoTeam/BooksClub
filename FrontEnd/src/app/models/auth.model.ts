@@ -1,9 +1,13 @@
 import { User } from './user.model';
 
+/*
+  MODELLI AUTENTICAZIONE
+  Tipi per payload e risposte JSON di AuthController (register, login, check-session).
+*/
+
 export interface RegisterPayload {
   username: string;
   password: string;
-  ruolo?: User['ruolo'];
 }
 
 export interface LoginPayload {

@@ -16,6 +16,8 @@ Questo progetto configura un ambiente di sviluppo completo per un'applicazione b
 │   └── controllers/
 │       ├── AuthController.php # Registrazione, Login, Logout e controllo Sessione
 │       └── APIController.php  # Gestione Libri personali e funzioni Pannello Admin
+│   └── seed/
+│       └── seed_default_admin.php  # Admin predefinito all'avvio Docker
 ├── docker-compose.yml         # Orchestrazione dei servizi Docker
 └── README.md
 ```
@@ -98,49 +100,30 @@ Password: password123
 
 ## 👤 Account applicazione (utenti `users`)
 
-Il backend **non crea automaticamente** un utente amministratore all’avvio di Docker.  
-Ogni account (user o admin) va registrato tramite `POST /register` con il campo `ruolo`.
+### Amministratore predefinito (seed automatico)
 
-### Account admin consigliato per i test
+All’avvio del container PHP viene eseguito `php/seed/seed_default_admin.php`, che crea **un solo** admin se non esiste già.
 
-Dopo `docker compose up`, crea un amministratore con una delle modalità sotto.
+| Campo    | Valore        |
+| -------- | ------------- |
+| Username | `admin`       |
+| Password | `Admin@1234`  |
+| Ruolo    | `admin`       |
 
-| Campo    | Valore suggerito   |
-| -------- | ------------------ |
-| Username | `admin_boss`       |
-| Password | `superpassword`    |
-| Ruolo    | `admin`            |
+**Accesso:** login su http://localhost:4200/login oppure `POST /login` con le credenziali sopra → pannello su `/admin`.
 
-**Opzione A — Frontend Angular** (`http://localhost:4200/register`):
+> La registrazione pubblica (`POST /register`) crea **solo** utenti `user`. Non è possibile registrarsi come admin né usare lo username `admin`.
 
-1. Compila username e password (es. tabella sopra).
-2. In «Tipo account» seleziona **Amministratore — solo per test**.
-3. Accedi da `/login` → verrai reindirizzato al pannello admin.
+### Utente standard (registrazione libera)
 
-**Opzione B — cURL** (vedi anche sezione sotto):
+Gli utenti normali si registrano dall’app (`/register`) o via API con `ruolo` omesso (default `user`).
 
-```bash
-curl -X POST http://localhost:8080/register \
-  -H "Content-Type: application/json" \
-  -d "{\"username\":\"admin_boss\",\"password\":\"superpassword\",\"ruolo\":\"admin\"}"
-```
-
-Poi login:
-
-```bash
-curl -X POST http://localhost:8080/login \
-  -c admin_cookies.txt \
-  -H "Content-Type: application/json" \
-  -d "{\"username\":\"admin_boss\",\"password\":\"superpassword\"}"
-```
-
-### Utente standard di esempio (libreria personale)
+Esempio per test manuali:
 
 | Campo    | Valore           |
 | -------- | ---------------- |
 | Username | `mario_rossi`    |
 | Password | `password123`    |
-| Ruolo    | `user` (default) |
 
 ---
 
@@ -164,14 +147,6 @@ Utilizza questi comandi dal terminale per verificare il corretto funzionamento d
 curl -X POST http://localhost:8080/register \
 -H "Content-Type: application/json" \
 -d "{\"username\":\"mario_rossi\",\"password\":\"password123\",\"ruolo\":\"user\"}"
-```
-
-### Registrazione di un Amministratore (`admin`)
-
-```bash
-curl -X POST http://localhost:8080/register \
--H "Content-Type: application/json" \
--d "{\"username\":\"admin_boss\",\"password\":\"superpassword\",\"ruolo\":\"admin\"}"
 ```
 
 ### Login Utente
@@ -292,7 +267,7 @@ Effettua prima il login come amministratore:
 curl -X POST http://localhost:8080/login \
 -c admin_cookies.txt \
 -H "Content-Type: application/json" \
--d "{\"username\":\"admin_boss\",\"password\":\"superpassword\"}"
+-d "{\"username\":\"admin\",\"password\":\"Admin@1234\"}"
 ```
 
 ### Statistiche Globali Utenti

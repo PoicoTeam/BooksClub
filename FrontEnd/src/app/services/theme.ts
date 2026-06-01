@@ -1,19 +1,23 @@
-import { Injectable, inject } from '@angular/core'; // Aggiunto inject
-import { DOCUMENT } from '@angular/common';         // Aggiunto DOCUMENT
+import { Injectable, inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { BehaviorSubject } from 'rxjs';
 
+/*
+  SERVIZIO TEMA (ThemeService)
+  Gestisce la modalità chiara/scura aggiungendo la classe "dark" su <html>
+  e salvando la preferenza in localStorage.
+*/
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ThemeService {
-  // Iniettiamo il documento usando la funzione inject globale
   private document = inject(DOCUMENT);
 
   private isDarkSubject = new BehaviorSubject<boolean>(false);
   isDark$ = this.isDarkSubject.asObservable();
 
   constructor() {
-    // Ora il costruttore è pulito e sicuro
+    // ripristina il tema scelto in precedenza dall'utente
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
       this.enableDark();

@@ -6,17 +6,22 @@ import { Notification } from '../../services/notification';
 import { getApiErrorMessage } from '../../utils/api-error';
 import { NgIf } from '@angular/common';
 
+/*
+  PAGINA REGISTRAZIONE (RegisterComponent)
+  Crea un nuovo account utente standard (ruolo user) tramite POST /register.
+  L'account admin è solo quello creato dal seed backend (vedi README).
+*/
 @Component({
   selector: 'app-register',
   standalone: true,
   imports: [ReactiveFormsModule, RouterLink, NgIf],
-  templateUrl: './register.html'
+  templateUrl: './register.html',
 })
-
-export class RegisterComponent { 
+export class RegisterComponent {
   registerForm: FormGroup;
-  errorMessage: string = '';
-  successMessage: string = '';
+  errorMessage = '';
+  successMessage = '';
+
   constructor(
     private fb: FormBuilder,
     private authService: Auth,
@@ -26,7 +31,6 @@ export class RegisterComponent {
     this.registerForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       password: ['', [Validators.required, Validators.minLength(4)]],
-      ruolo: ['user' as const],
     });
   }
 
@@ -38,13 +42,12 @@ export class RegisterComponent {
     this.errorMessage = '';
     this.successMessage = '';
 
-    const { username, password, ruolo } = this.registerForm.value;
-    this.authService.register({ username, password, ruolo }).subscribe({
+    const { username, password } = this.registerForm.value;
+    this.authService.register({ username, password }).subscribe({
       next: (response) => {
         if (response.status === 'success') {
-          const ruoloLabel = ruolo === 'admin' ? 'amministratore' : 'utente';
-          this.successMessage = `Registrazione come ${ruoloLabel} completata! Reindirizzamento...`;
-          this.notification.success(`Account ${ruoloLabel} creato.`);
+          this.successMessage = 'Registrazione completata! Reindirizzamento...';
+          this.notification.success('Account creato con successo.');
           setTimeout(() => this.router.navigate(['/login']), 2000);
         }
       },
@@ -52,6 +55,5 @@ export class RegisterComponent {
         this.errorMessage = getApiErrorMessage(err, 'Errore durante la registrazione.');
       },
     });
-
   }
 }

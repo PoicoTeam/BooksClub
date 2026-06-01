@@ -9,6 +9,11 @@ import { LibraryEvents } from '../../services/library-events';
 import { getApiErrorMessage } from '../../utils/api-error';
 import { optionalUrlValidator } from '../../utils/validators';
 
+/*
+  PAGINA MODIFICA LIBRO (EditBookComponent)
+  Carica il libro con GET /books/{id} e salva con PUT /books/{id}.
+  Rotta: edit-book/:idBook
+*/
 @Component({
   selector: 'app-edit-book',
   standalone: true,
@@ -42,6 +47,7 @@ export class EditBookComponent implements OnInit {
       descrizione: [''],
     });
 
+    // id libro dalla rotta dinamica
     const id = this.route.snapshot.paramMap.get('idBook');
     if (!id) {
       this.notification.error('ID del libro non valido.');

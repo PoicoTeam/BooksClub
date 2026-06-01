@@ -42,12 +42,22 @@ class AuthController
         
         $username = trim($data['username'] ?? '');
         $password = $data['password'] ?? '';
-        $ruolo = $data['ruolo'] ?? 'user'; // il ruolo di default è 'user' ('admin' è l'alternativa)
 
         // cantrollo dei campi obbligatori vuoti
         if (empty($username) || empty($password)) {
             return $this->jsonResponse($response, ["error" => "Dati incompleti"], 400);
         }
+
+        // Solo account standard: l'admin è creato dal seed all'avvio (vedi seed/seed_default_admin.php)
+        if (strtolower($username) === 'admin') {
+            return $this->jsonResponse($response, ["error" => "Username riservato"], 400);
+        }
+
+        if (isset($data['ruolo']) && $data['ruolo'] === 'admin') {
+            return $this->jsonResponse($response, ["error" => "Registrazione come amministratore non consentita"], 403);
+        }
+
+        $ruolo = 'user';
 
         // seleziona la collezione 'users' su MongoDB
         $usersColl = $this->getDb()->selectCollection('users');

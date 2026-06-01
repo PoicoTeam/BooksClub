@@ -1,5 +1,10 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
+/*
+  VALIDATORI FORM (validators)
+  Regole riutilizzabili nei form reattivi (es. URL copertina opzionale).
+*/
+
 /** URL http/https opzionale: vuoto = valido, valorizzato = deve essere URL assoluto */
 export function optionalUrlValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {

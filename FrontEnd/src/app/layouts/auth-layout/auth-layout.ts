@@ -4,6 +4,10 @@ import { filter } from 'rxjs/operators';
 import { NavbarComponent } from '../../components/navbar/navbar';
 import { FooterComponent } from '../../components/footer/footer';
 
+/*
+  LAYOUT AUTENTICAZIONE (AuthLayoutComponent)
+  Wrapper per login e register: contenuto centrato, navbar ridotta, footer.
+*/
 @Component({
   selector: 'app-auth-layout',
   standalone: true,

@@ -2,6 +2,10 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Notification, ToastMessage } from '../../services/notification';
 
+/*
+  CONTAINER TOAST (ToastContainerComponent)
+  Renderizza i messaggi emessi dal servizio Notification (angolo in alto a destra).
+*/
 @Component({
   selector: 'app-toast-container',
   standalone: true,

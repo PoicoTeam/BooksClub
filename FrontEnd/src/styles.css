@@ -1,3 +1,8 @@
+/*
+  STILI GLOBALI (styles.css)
+  Tailwind, transizioni tema, animazioni pagina/card e classi nav/footer condivise.
+*/
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
