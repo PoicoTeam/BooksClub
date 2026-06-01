@@ -2,14 +2,14 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Auth } from '../../services/auth';
-import { ThemeService } from '../../services/theme';
-import { NgIf, AsyncPipe } from '@angular/common';
-import { Observable } from 'rxjs';
+import { Notification } from '../../services/notification';
+import { getApiErrorMessage } from '../../utils/api-error';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, NgIf, AsyncPipe],
+  imports: [ReactiveFormsModule, RouterLink, NgIf],
   templateUrl: './register.html'
 })
 
@@ -17,24 +17,16 @@ export class RegisterComponent {
   registerForm: FormGroup;
   errorMessage: string = '';
   successMessage: string = '';
-  isDark$: Observable<boolean>;
-
   constructor(
     private fb: FormBuilder,
     private authService: Auth,
-    private themeService: ThemeService,
-    private router: Router
+    private router: Router,
+    private notification: Notification
   ) {
-    this.isDark$ = this.themeService.isDark$;
     this.registerForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       password: ['', [Validators.required, Validators.minLength(4)]],
-      ruolo: ['user']
     });
-  }
-
-  toggleTheme() {
-    this.themeService.toggleTheme();
   }
 
   onSubmit() {
@@ -45,16 +37,18 @@ export class RegisterComponent {
     this.errorMessage = '';
     this.successMessage = '';
 
-    this.authService.register(this.registerForm.value).subscribe({
-      next: (response: any) => {
+    const { username, password } = this.registerForm.value;
+    this.authService.register({ username, password }).subscribe({
+      next: (response) => {
         if (response.status === 'success') {
           this.successMessage = 'Registrazione completata! Reindirizzamento...';
+          this.notification.success('Account creato con successo.');
           setTimeout(() => this.router.navigate(['/login']), 2000);
         }
       },
       error: (err) => {
-        this.errorMessage = err.error?.error || 'Errore durante la registrazione.';
-      }
+        this.errorMessage = getApiErrorMessage(err, 'Errore durante la registrazione.');
+      },
     });
 
   }

@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Auth } from '../services/auth';
-import { map, tap } from 'rxjs';
+import { map, of, catchError } from 'rxjs';
 
 export const authGuard = () => {
   const authService = inject(Auth);
@@ -9,12 +9,17 @@ export const authGuard = () => {
 
   // Controlliamo la sessione dal server
   return authService.checkSession().pipe(
-    map(res => !!res.logged), // Trasforma la risposta in true/false
-    tap(isLogged => {
-      if (!isLogged) {
-        // Se non è loggato, rimandiamo al login
+    map(res => {
+      if (res.logged) {
+        return true;
+      } else {
         router.navigate(['/login']);
+        return false;
       }
+    }),
+    catchError(() => {
+      router.navigate(['/login']);
+      return of(false);
     })
   );
 };

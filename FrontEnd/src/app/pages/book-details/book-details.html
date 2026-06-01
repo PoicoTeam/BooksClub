@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950/30 p-4 sm:p-8 flex justify-center items-center transition-colors duration-300 relative overflow-hidden">
+<div class="max-w-5xl mx-auto p-4 sm:p-8 flex justify-center items-center relative overflow-hidden">
   
   <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-orange-400/20 dark:bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
   <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-amber-400/20 dark:bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -19,25 +19,32 @@
     </button>
   </div>
 
-  <div *ngIf="!loading && bookData" class="w-full max-w-5xl bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border border-white dark:border-gray-800/60 rounded-[32px] shadow-2xl shadow-orange-900/5 dark:shadow-none overflow-hidden grid grid-cols-1 md:grid-cols-12 transition-all duration-500 relative z-10 hover:border-orange-200/80 dark:hover:border-indigo-500/30">
+  <div *ngIf="!loading && bookData" class="w-full bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border border-white dark:border-gray-800/60 rounded-[32px] shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-12 transition-all duration-500 relative z-10 hover:border-orange-200/80 dark:hover:border-indigo-500/30 book-card-enter hover-lift">
     
     <div class="md:col-span-5 bg-gradient-to-b from-gray-50 to-gray-100/50 dark:from-gray-950 dark:to-gray-900/50 flex items-center justify-center relative min-h-[380px] md:min-h-full p-8 border-b md:border-b-0 md:border-r border-orange-100/40 dark:border-gray-800/50 group">
       
-      <div *ngIf="bookData.copertina" class="absolute inset-12 bg-cover bg-center rounded-2xl blur-2xl opacity-40 dark:opacity-30 scale-105 transition-transform duration-750 group-hover:scale-110 pointer-events-none" [style.backgroundImage]="'url(' + bookData.copertina + ')'"></div>
+      <div *ngIf="shouldShowCover(bookData)" class="absolute inset-12 bg-cover bg-center rounded-2xl blur-2xl opacity-40 dark:opacity-30 scale-105 transition-transform duration-750 group-hover:scale-110 pointer-events-none" [style.backgroundImage]="'url(' + bookData.copertina + ')'"></div>
 
       <div class="w-full max-w-[240px] aspect-[2/3] rounded-2xl overflow-hidden shadow-[0_15px_35px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.5)] bg-white dark:bg-gray-900 border border-white/40 dark:border-gray-800 relative z-10 transition-all duration-500 group-hover:scale-[1.03] group-hover:shadow-[0_20px_45px_rgba(234,88,12,0.15)] dark:group-hover:shadow-[0_25px_50px_rgba(99,102,241,0.25)] flex items-center justify-center">
-        <img *ngIf="bookData.copertina" [src]="bookData.copertina" [alt]="bookData.titolo" 
+        <img *ngIf="shouldShowCover(bookData)" [src]="bookData.copertina" [alt]="bookData.titolo" 
           class="w-full h-full object-cover transition-transform duration-700"
-          (error)="bookData.copertina = null" />
+          (error)="markCoverFailed(bookData)" />
 
-        <div *ngIf="!bookData.copertina" class="text-center space-y-2 select-none">
+        <div *ngIf="!shouldShowCover(bookData)" class="text-center space-y-2 select-none">
           <span class="text-7xl block transform group-hover:scale-110 transition-transform duration-300">📖</span>
           <span class="text-[10px] uppercase tracking-widest font-black text-gray-400 dark:text-gray-500">No Cover</span>
         </div>
       </div>
 
-      <button *ngIf="bookData.preferito" class="absolute top-5 left-5 text-xl bg-white/90 dark:bg-gray-900/90 backdrop-blur-md p-2.5 rounded-2xl shadow-lg border border-orange-100/50 dark:border-gray-800 text-red-500 scale-100 hover:scale-110 transition-transform cursor-default">
-        ❤️
+      <button
+        type="button"
+        (click)="togglePreferito()"
+        class="absolute top-5 left-5 text-xl bg-white/90 dark:bg-gray-900/90 backdrop-blur-md p-2.5 rounded-2xl shadow-lg border border-orange-100/50 dark:border-gray-800 scale-100 hover:scale-110 transition-transform cursor-pointer"
+        [class.text-red-500]="bookData.preferito"
+        [class.text-gray-300]="!bookData.preferito"
+        [title]="bookData.preferito ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti'"
+      >
+        {{ bookData.preferito ? '❤️' : '🤍' }}
       </button>
     </div>
 
@@ -51,6 +58,19 @@
           <span class="px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-xl bg-gray-950/5 dark:bg-white/5 border border-gray-200/50 dark:border-gray-800 text-gray-600 dark:text-gray-300 backdrop-blur-md">
             {{ formatStato(bookData.stato) }}
           </span>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 self-center">Stato lettura</label>
+          <select
+            [value]="bookData.stato || 'da_leggere'"
+            (change)="changeStato($any($event.target).value)"
+            class="text-xs font-bold px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 dark:text-white"
+          >
+            <option value="da_leggere">Da leggere</option>
+            <option value="in_lettura">In lettura</option>
+            <option value="letto">Letto</option>
+          </select>
         </div>
 
         <div class="space-y-2">
@@ -96,6 +116,20 @@
           </div>
 
         </div>
+
+        <div class="pt-6 border-t border-gray-100 dark:border-gray-800 flex gap-3">
+        <button 
+          (click)="deleteBook()" 
+          class="flex-1 px-4 py-3 bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 font-bold rounded-xl hover:bg-red-100 dark:hover:bg-red-900/50 transition-all cursor-pointer">
+          Elimina
+        </button>
+
+        <button 
+          [routerLink]="['/edit-book', bookData._id]" 
+          class="flex-1 px-4 py-3 bg-orange-600 dark:bg-indigo-600 text-white font-bold rounded-xl hover:opacity-90 transition-all cursor-pointer">
+          Modifica
+        </button>
+      </div>
 
         <div class="pt-2">
           <button routerLink="/dashboard" class="w-full sm:w-auto px-8 py-3.5 text-sm font-bold rounded-xl border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 shadow-sm hover:shadow transition-all active:scale-[0.98] cursor-pointer text-center inline-flex items-center justify-center gap-2 group">

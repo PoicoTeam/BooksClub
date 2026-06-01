@@ -1,101 +1,117 @@
-# 📚 BooksClub - Frontend
+# BooksClub — Frontend (Angular)
 
-Questo è il modulo frontend dell'applicazione **BooksClub**, sviluppato con **Angular**. L'applicazione permette la gestione di un catalogo personale di libri, con autenticazione utente e supporto per il tema Dark/Light.
+Interfaccia SPA per la **libreria personale** BooksClub: catalogo libri per utente, autenticazione a sessione PHP e pannello amministratore.
 
-## 🚀 Tecnologie Utilizzate
+## Stack
 
-- Angular 17+ (Standalone Components)
-- Tailwind CSS (per lo styling)
-- RxJS (per la gestione dei flussi di dati asincroni)
-- TypeScript
+| Tecnologia | Uso |
+|------------|-----|
+| Angular 21 | Standalone components, lazy routes |
+| TypeScript | Modelli `Book`, `BookStats`, `User`, risposte API |
+| Tailwind CSS | UI responsive, tema chiaro/scuro |
+| RxJS | HTTP, eventi catalogo, notifiche toast |
 
-## 🛠️ Funzionalità
+## Funzionalità
 
-### 🔐 Autenticazione
-- Login
-- Registrazione
-- Protezione delle rotte tramite `AuthGuard`
+### Autenticazione
+- Registrazione (solo ruolo `user`)
+- Login / logout con cookie di sessione (`withCredentials`)
+- `authGuard` e `adminGuard` sulle rotte protette
 
-### 📚 Dashboard
-- Visualizzazione dinamica dei libri caricati dal database
+### Libreria personale
+- Dashboard con statistiche (`GET /stats`)
+- Ricerca per titolo/autore e filtri (stato lettura, preferiti)
+- **Paginazione lato client** (12 libri per pagina; il backend restituisce l’elenco completo)
+- Dettaglio libro: stato, preferiti, modifica, eliminazione
+- Aggiunta e modifica libro con validazione URL copertina (opzionale, `http`/`https`)
+- Placeholder copertina se URL assente o immagine non caricabile
 
-### ✏️ CRUD
-- Possibilità di aggiungere nuovi libri al proprio catalogo
+### Amministrazione
+- Pannello `/admin` (solo ruolo `admin`)
+- Gestione utenti tramite servizio dedicato `Admin` (nessuna duplicazione in `Auth`)
 
-### 🎨 Temi
-- Supporto nativo per modalità **Dark** e **Light**
+### UX
+- **Navbar** e **footer** condivisi (`AppLayout` / `AuthLayout`)
+- **Animazioni** leggere: transizione tra pagine, card libreria a scaglioni, menu mobile
+- Rispetto di `prefers-reduced-motion` per l’accessibilità
+- **Toast** globali (`Notification` + `app-toast-container`) al posto di `alert()`
+- Messaggi errore derivati dalle risposte API (`getApiErrorMessage`)
+- **Refresh automatico** di libri e statistiche dopo CRUD (`LibraryEvents`)
 
-### 🛡️ Sicurezza
-- Gestione delle sessioni tramite `withCredentials` verso il backend PHP
-
-## ⚙️ Configurazione e Avvio
+## Avvio in sviluppo
 
 ### Prerequisiti
-
-- Node.js (v18+)
-- Angular CLI
-
-```bash
-npm install -g @angular/cli
-```
+- Node.js 18+
+- Backend PHP attivo (es. Docker sulla porta `8080`)
 
 ### Installazione
 
-1. Entra nella cartella del frontend:
-
 ```bash
 cd FrontEnd
-```
-
-2. Installa le dipendenze:
-
-```bash
 npm install
 ```
 
-### Sviluppo
-
-Per avviare il server di sviluppo locale:
+### Server di sviluppo
 
 ```bash
-ng serve
+npm start
 ```
 
-L'applicazione sarà accessibile all'indirizzo:
+L’app è su [http://localhost:4200](http://localhost:4200).
+
+Le richieste verso `/api/*` sono inoltrate al backend tramite `proxy.conf.json` (target `http://localhost:8080`, rewrite senza prefisso `/api`).
+
+## Struttura principale
 
 ```text
-http://localhost:4200
+src/app/
+├── components/
+│   ├── navbar/              # Navigazione app / auth
+│   ├── footer/              # Piè di pagina
+│   └── toast-container/     # Notifiche UI
+├── layouts/
+│   ├── app-layout/          # Shell area autenticata
+│   └── auth-layout/         # Shell login/registrazione
+├── guards/
+│   ├── auth-guard.ts
+│   └── admin-guard.ts
+├── interceptors/
+│   └── auth.interceptor.ts  # withCredentials su tutte le richieste
+├── models/
+│   ├── auth.model.ts
+│   ├── book.model.ts
+│   └── user.model.ts
+├── pages/                   # Login, register, dashboard, libri, admin
+├── services/
+│   ├── auth.ts              # Solo autenticazione
+│   ├── admin.ts             # Solo API admin
+│   ├── book.ts
+│   ├── library-events.ts    # Evento refresh catalogo
+│   ├── notification.ts
+│   └── theme.ts
+└── utils/
+    ├── api-error.ts
+    ├── book-cover.ts
+    └── validators.ts
 ```
 
-## 📁 Struttura del Progetto
+## Script utili
 
-```text
-src/
-└── app/
-    ├── pages/      # Componenti delle pagine (Dashboard, Login, AddBook, ecc.)
-    ├── services/   # Servizi di comunicazione con il backend e ThemeService
-    └── guards/     # Logiche di protezione delle rotte (auth.guard.ts)
-```
+| Comando | Descrizione |
+|---------|-------------|
+| `npm start` | `ng serve` con proxy API |
+| `npm run build` | Build produzione in `dist/FrontEnd` |
+| `npm test` | Test unitari (Vitest) |
 
-### Directory principali
+## Integrazione backend
 
-- `src/app/pages/`  
-  Contiene i componenti delle pagine dell'applicazione (Dashboard, Login, AddBook, ecc.).
+- Base URL relativa: `/api`
+- Sessione: cookie PHP (`PHPSESSID`) inviato automaticamente
+- Non committare la cartella `.angular/` (cache di build): è in `.gitignore`
 
-- `src/app/services/`  
-  Contiene i servizi per la comunicazione con il backend (`AuthService`, `BookService`) e il `ThemeService`.
+Per CORS e sessioni, il backend deve consentire l’origine `http://localhost:4200` e le credenziali. Vedi la documentazione nella cartella `BackEnd/`.
 
-- `src/app/guards/`  
-  Contiene le logiche di protezione delle rotte (`auth.guard.ts`).
+## Note
 
-## 🔗 Integrazione Backend
-
-Il frontend comunica con il backend PHP tramite chiamate HTTP.
-
-Assicurati che il backend sia attivo e configurato correttamente per gestire le intestazioni CORS:
-
-```http
-Access-Control-Allow-Origin: http://localhost:4200
-```
-
-Inoltre, per la gestione delle sessioni tramite cookie, il backend deve supportare le richieste con credenziali (`withCredentials`).
+- La paginazione è **solo frontend**: quando il catalogo cresce molto, in futuro si potrà aggiungere `limit`/`offset` sul backend senza cambiare il flusso utente.
+- Gli account admin non si creano dalla registrazione pubblica; vanno provisionati nel database.

@@ -1,41 +1,56 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth-guard';
+import { adminGuard } from './guards/admin-guard';
 
 export const routes: Routes = [
-    // Rotta iniziale: se l'utente digita solo l'URL, viene rimandato al login
-    { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
 
-    // Rotte pubbliche di autenticazione
-    {
+  {
+    path: '',
+    loadComponent: () =>
+      import('./layouts/auth-layout/auth-layout').then((m) => m.AuthLayoutComponent),
+    children: [
+      {
         path: 'login',
-        loadComponent: () => import('./pages/login/login').then(m => m.LoginComponent)
-    },
-    {
+        loadComponent: () => import('./pages/login/login').then((m) => m.LoginComponent),
+      },
+      {
         path: 'register',
-        loadComponent: () => import('./pages/register/register').then(m => m.RegisterComponent)
-    },
+        loadComponent: () => import('./pages/register/register').then((m) => m.RegisterComponent),
+      },
+    ],
+  },
 
-    // Rotta per la dashboard principale (Catalogo Libri)
-    {
+  {
+    path: '',
+    loadComponent: () =>
+      import('./layouts/app-layout/app-layout').then((m) => m.AppLayoutComponent),
+    canActivate: [authGuard],
+    children: [
+      {
         path: 'dashboard',
-        loadComponent: () => import('./pages/dashboard/dashboard').then(m => m.DashboardComponent),
-        canActivate: [authGuard]
-    },
-    
-    // Rotta per aggiungere un libro
-    {
+        loadComponent: () => import('./pages/dashboard/dashboard').then((m) => m.DashboardComponent),
+      },
+      {
         path: 'add-book',
-        loadComponent: () => import('./pages/add-book/add-book').then(m => m.AddBookComponent),
-        canActivate: [authGuard] 
-    },
-
-    // NUOVA ROTTA: Dettagli del singolo libro (accetta il parametro dinamico :idBook)
-    {
+        loadComponent: () => import('./pages/add-book/add-book').then((m) => m.AddBookComponent),
+      },
+      {
         path: 'book-details/:idBook',
-        loadComponent: () => import('./pages/book-details/book-details').then(m => m.BookDetailsComponent),
-        canActivate: [authGuard]
-    },
+        loadComponent: () =>
+          import('./pages/book-details/book-details').then((m) => m.BookDetailsComponent),
+      },
+      {
+        path: 'edit-book/:idBook',
+        loadComponent: () => import('./pages/edit-book/edit-book').then((m) => m.EditBookComponent),
+      },
+      {
+        path: 'admin',
+        loadComponent: () => import('./pages/admin-panel/admin-panel').then((m) => m.AdminPanel),
+        canActivate: [adminGuard],
+      },
+    ],
+  },
 
-    // Rotta jolly: se l'utente scrive un URL inventato, torna al login
-    { path: '**', redirectTo: 'login' }
+  { path: '**', redirectTo: 'login' },
 ];

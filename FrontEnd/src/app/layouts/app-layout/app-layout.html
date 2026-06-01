@@ -1,0 +1,13 @@
+<div
+  class="min-h-screen flex flex-col bg-gradient-to-b from-orange-50/40 via-white to-orange-50/20 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300"
+>
+  <app-navbar variant="app" />
+
+  <main class="flex-1 w-full">
+    <div class="page-route-enter" [class.page-route-enter-active]="pageAnimate">
+      <router-outlet />
+    </div>
+  </main>
+
+  <app-footer variant="app" />
+</div>

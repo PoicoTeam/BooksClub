@@ -1,0 +1,38 @@
+<div class="max-w-6xl mx-auto p-6 sm:p-10 space-y-8">
+  <div class="book-card-enter">
+    <h1 class="text-3xl font-black text-gray-900 dark:text-white">Pannello Admin</h1>
+    <p class="text-gray-500 dark:text-gray-400 mt-1">Gestione utenti del club</p>
+  </div>
+
+  <div class="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm max-w-sm">
+    <h3 class="text-sm font-bold text-gray-400">Utenti registrati</h3>
+    <p class="text-4xl font-black mt-2">{{ stats?.numero_utenti_registrati ?? 0 }}</p>
+  </div>
+
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden shadow-sm">
+    <table class="w-full text-left">
+      <thead class="bg-gray-50 dark:bg-gray-800/50">
+        <tr>
+          <th class="p-4 font-bold text-sm">Username</th>
+          <th class="p-4 font-bold text-sm">Azioni</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users" class="border-t border-gray-100 dark:border-gray-800">
+          <td class="p-4">{{ user.username }}</td>
+          <td class="p-4 flex gap-2 flex-wrap">
+            <button (click)="handleReset(user.id)" class="text-xs bg-amber-500 text-white px-3 py-1 rounded-md">
+              Reset password
+            </button>
+            <button (click)="handleDelete(user.id)" class="text-xs bg-red-500 text-white px-3 py-1 rounded-md">
+              Elimina
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="users.length === 0">
+          <td colspan="2" class="p-6 text-center text-gray-400 text-sm">Nessun utente da gestire.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,272 +1,138 @@
-# 📚 BooksClub - Full-Stack Application
+# BooksClub — Libreria personale (Full-Stack)
 
-BooksClub è un'applicazione web full-stack progettata per la gestione di cataloghi librari personali. Il sistema consente agli utenti di creare, modificare, consultare ed eliminare libri attraverso un'interfaccia moderna sviluppata con Angular e un backend RESTful realizzato con PHP, Slim Framework e MongoDB.
-
-L'applicazione è stata sviluppata seguendo una chiara separazione tra frontend e backend, adottando un'architettura modulare che facilita manutenzione, scalabilità ed evoluzione futura del progetto.
+BooksClub è un’applicazione web per gestire una **libreria personale di libri**: ogni utente ha il proprio catalogo (titolo, autore, stato di lettura, preferiti, copertina, recensione). Il frontend Angular comunica con un backend REST in PHP (Slim + MongoDB) tramite sessioni PHP sicure.
 
 ---
 
-# ✨ Caratteristiche Principali
+## Caratteristiche
 
-* 🔐 Sistema di autenticazione completo (Registrazione, Login e Logout)
-* 👥 Gestione ruoli Utente e Amministratore
-* 📚 Gestione catalogo libri tramite operazioni CRUD complete
-* 🌙 Supporto ai temi Dark e Light
-* 🔒 Gestione sicura delle sessioni tramite PHP Session
-* 🌐 API RESTful sviluppate con Slim Framework
-* 🗄️ Persistenza dati tramite MongoDB
-* 🐳 Ambiente di sviluppo containerizzato tramite Docker
-* 🎯 Architettura Full-Stack moderna basata su Angular e PHP
+| Area | Dettaglio |
+|------|-----------|
+| Autenticazione | Registrazione, login, logout, `check-session` |
+| Ruoli | `user` (libreria privata), `admin` (gestione utenti) |
+| Libri | CRUD, filtri, ricerca, statistiche personali |
+| UI | Tema chiaro/scuro, toast, paginazione catalogo |
+| DevOps | Docker Compose per backend e database |
 
 ---
 
-# 🏗️ Architettura del Sistema
+## Architettura
 
-Il progetto è composto da tre componenti principali:
-
-| Componente | Tecnologia           | Funzione                      |
-| ---------- | -------------------- | ----------------------------- |
-| Frontend   | Angular + TypeScript | Interfaccia utente SPA        |
-| Backend    | PHP + Slim Framework | API REST e logica applicativa |
-| Database   | MongoDB              | Archiviazione dei dati        |
-
-La comunicazione tra frontend e backend avviene tramite richieste HTTP verso API RESTful dedicate.
-
----
-
-# 📁 Struttura del Progetto
-
-```plaintext
-/
-├── FrontEnd/         # Applicazione Angular
-├── BackEnd/          # API PHP e logica applicativa
-├── docker-compose.yml
-└── README.md
+```text
+┌─────────────────┐     HTTP + cookie      ┌──────────────────┐
+│  FrontEnd       │ ─────────────────────► │  BackEnd (PHP)   │
+│  Angular :4200  │      /api → proxy      │  Slim :8080      │
+└─────────────────┘                        └────────┬─────────┘
+                                                    │
+                                                    ▼
+                                           ┌──────────────────┐
+                                           │  MongoDB         │
+                                           └──────────────────┘
 ```
 
-Ogni modulo possiede una documentazione dedicata:
-
-* `FrontEnd/README.md`
-* `BackEnd/README.md`
-
----
-
-# 👤 Sistema di Autenticazione
-
-BooksClub implementa un sistema di autenticazione basato su sessioni PHP.
-
-Le funzionalità disponibili includono:
-
-* Registrazione nuovi utenti
-* Login autenticato
-* Logout sicuro
-* Gestione della sessione tramite cookie PHPSESSID
-* Protezione delle rotte riservate
-* Controllo degli accessi basato sui ruoli
-
-## Ruoli Disponibili
-
-### Utente
-
-Può:
-
-* Accedere al proprio catalogo
-* Visualizzare i libri disponibili
-* Aggiungere nuovi libri
-* Modificare i libri esistenti
-* Eliminare libri dal catalogo
-
-### Amministratore
-
-Dispone di privilegi estesi rispetto all'utente standard e può accedere alle funzionalità amministrative previste dal sistema.
+| Modulo | Percorso | Documentazione |
+|--------|----------|----------------|
+| Frontend | `FrontEnd/` | [FrontEnd/README.md](FrontEnd/README.md) |
+| Backend | `BackEnd/` | `BackEnd/README.md` (se presente) |
 
 ---
 
-# 📚 Gestione Catalogo Libri
+## Avvio rapido
 
-Il cuore dell'applicazione è il sistema di gestione della libreria personale.
+### Prerequisiti
+- Docker e Docker Compose
+- Node.js 18+ (solo per sviluppo frontend locale)
 
-Ogni utente può effettuare operazioni CRUD complete:
+### 1. Backend e database
 
-### Creazione
-
-Inserimento di nuovi libri nel catalogo.
-
-### Lettura
-
-Visualizzazione dinamica dei libri salvati nel database.
-
-### Modifica
-
-Aggiornamento delle informazioni associate ai libri esistenti.
-
-### Eliminazione
-
-Rimozione dei libri dal catalogo.
-
-Tutte le operazioni vengono sincronizzate con MongoDB tramite API REST.
-
----
-
-# 🎨 Personalizzazione dell'Interfaccia
-
-L'applicazione integra un sistema di gestione dei temi che permette di alternare:
-
-* Modalità Light
-* Modalità Dark
-
-Il cambio tema viene applicato dinamicamente per migliorare l'esperienza utente.
-
----
-
-# 🔒 Sicurezza
-
-Sono state adottate diverse misure per garantire la sicurezza dell'applicazione:
-
-* Sessioni gestite lato server
-* Cookie di autenticazione
-* Middleware di protezione delle rotte
-* Controllo degli accessi basato sui ruoli
-* Configurazione CORS dedicata
-* Separazione tra frontend e backend
-
----
-
-# 🐳 Ambiente Docker
-
-L'applicazione è progettata per essere eseguita tramite Docker.
-
-L'utilizzo dei container permette di:
-
-* Standardizzare l'ambiente di sviluppo
-* Ridurre problemi di configurazione
-* Facilitare il deployment
-* Isolare frontend, backend e database
-
----
-
-# 🚀 Avvio del Progetto
-
-## Prerequisiti
-
-Prima di iniziare assicurarsi di avere installato:
-
-* Docker
-* Docker Compose
-
----
-
-## Clonazione Repository
-
-```bash
-git clone <repository-url>
-cd BooksClub
-```
-
----
-
-## Avvio dei Container
-
-Dalla cartella principale del progetto:
+Dalla root del progetto:
 
 ```bash
 docker compose up --build
 ```
 
-oppure:
+(Configurazione in `BackEnd/docker-compose.yaml`.)
+
+### 2. Frontend
 
 ```bash
-docker-compose up --build
+cd FrontEnd
+npm install
+npm start
 ```
 
-Una volta completata l'inizializzazione:
-
-| Servizio         | Indirizzo                       |
-| ---------------- | ------------------------------- |
-| Frontend Angular | http://localhost:4200           |
-| Backend PHP      | Configurato tramite Docker      |
-| MongoDB          | Database locale containerizzato |
+| Servizio | URL |
+|----------|-----|
+| Angular (dev) | http://localhost:4200 |
+| API PHP (via proxy Angular) | http://localhost:4200/api → backend |
 
 ---
 
-# 🗄️ Database
+## Flusso utente tipico
 
-BooksClub utilizza MongoDB come sistema di persistenza dati.
+1. **Registrazione** → account `user`
+2. **Login** → dashboard con statistiche e griglia libri
+3. **Aggiungi libro** → compilazione form (URL copertina opzionale ma validato)
+4. **Dettaglio** → cambio stato, preferiti, modifica o elimina
+5. **Admin** (se previsto nel DB) → pannello gestione utenti su `/admin`
 
-Il database viene eseguito localmente all'interno dell'ambiente Docker e memorizza:
-
-* Utenti
-* Sessioni
-* Cataloghi librari
-* Informazioni dei libri
-
-La connessione viene gestita centralmente tramite Dependency Injection nel backend.
+Dopo ogni operazione sul catalogo, la dashboard aggiorna automaticamente libri e contatori.
 
 ---
 
-# ⚙️ Stack Tecnologico
+## Stack tecnologico
 
-## Frontend
+**Frontend:** Angular 21, TypeScript, Tailwind CSS, RxJS  
 
-* Angular
-* TypeScript
-* RxJS
-* Tailwind CSS
+**Backend:** PHP, Slim Framework, MongoDB  
 
-## Backend
-
-* PHP
-* Slim Framework
-* PHP-DI
-* Composer
-
-## Database
-
-* MongoDB
-
-## DevOps
-
-* Docker
-* Docker Compose
+**Tooling:** Docker, npm, Angular CLI  
 
 ---
 
-# ⚠️ Limitazioni Attuali
+## Repository e file da non versionare
 
-La versione corrente del progetto non include ancora:
+Il `.gitignore` alla root esclude, tra l’altro:
 
-* Ricerca avanzata dei libri
-* Filtri per categoria o autore
-* Ordinamento personalizzato
-* Test automatici
-* Documentazione API tramite Swagger/OpenAPI
+- `FrontEnd/node_modules/`, `FrontEnd/.angular/`, `FrontEnd/dist/`
+- `BackEnd/php/vendor/`
 
-Queste funzionalità potranno essere implementate nelle future versioni del progetto.
+Se in passato sono stati committati file sotto `.angular/cache`, rimuovili dal tracking con:
 
----
-
-# 🚀 Evoluzioni Future
-
-Possibili miglioramenti previsti:
-
-* Ricerca full-text
-* Filtri dinamici
-* Ordinamento avanzato
-* Upload immagini di copertina
-* Dashboard statistiche
-* Sistema recensioni e valutazioni
-* Notifiche e promemoria di lettura
-* API documentate con Swagger
-* Suite di test automatizzati
+```bash
+git rm -r --cached FrontEnd/.angular
+```
 
 ---
 
-# 📄 Licenza
+## Sicurezza (panoramica)
 
-Questo progetto è stato sviluppato a scopo didattico e formativo per approfondire lo sviluppo di applicazioni full-stack moderne utilizzando Angular, PHP e MongoDB.
+- Sessioni lato server (`$_SESSION`, cookie `PHPSESSID`)
+- Ogni utente vede solo i propri libri (`utente_id` sul backend)
+- Rotte admin protette da ruolo
+- Registrazione pubblica solo come `user` (il frontend non espone più la scelta “admin”)
 
 ---
 
-## 👨‍💻 Autore
+## Stato attuale vs. evoluzioni
 
-BooksClub rappresenta un progetto completo di gestione libraria che integra frontend moderno, backend RESTful e database NoSQL in un'unica soluzione scalabile e facilmente estendibile.
+**Già presente nel frontend**
+
+- Ricerca e filtri sul catalogo
+- Statistiche dashboard
+- Toast e gestione errori API
+- Paginazione client-side del catalogo
+- Validazione URL copertina e placeholder immagine
+
+**Possibili estensioni future**
+
+- Paginazione server-side (`limit` / `offset` su `GET /books`)
+- Upload file copertina (oggi solo URL)
+- Test e2e e documentazione OpenAPI
+- Ordinamento personalizzato (titolo, data, voto)
+
+---
+
+## Licenza
+
+Progetto didattico — vedi file [LICENSE](LICENSE).

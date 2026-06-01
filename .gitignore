@@ -1,0 +1,14 @@
+# Frontend (Angular)
+FrontEnd/node_modules/
+FrontEnd/.angular/
+FrontEnd/dist/
+
+# Backend (riferimento: vedi BackEnd/.gitignore per dettagli locali)
+BackEnd/php/vendor/
+
+# IDE e sistema
+.idea/
+.vscode/
+*.log
+.DS_Store
+Thumbs.db

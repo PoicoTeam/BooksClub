@@ -1,0 +1,22 @@
+<footer
+  class="mt-auto border-t border-orange-100/60 dark:border-gray-800/80 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm"
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500 dark:text-gray-400">
+    <div class="text-center sm:text-left">
+      <p class="font-bold text-gray-700 dark:text-gray-300">BooksClub</p>
+      <p class="text-xs mt-0.5">La tua libreria personale, sempre con te.</p>
+    </div>
+
+    <div class="flex flex-wrap items-center justify-center gap-4 text-xs font-semibold">
+      @if (variant === 'app') {
+        <a routerLink="/dashboard" class="footer-link">Libreria</a>
+        <a routerLink="/add-book" class="footer-link">Nuovo libro</a>
+      } @else {
+        <a routerLink="/login" class="footer-link">Accedi</a>
+        <a routerLink="/register" class="footer-link">Crea account</a>
+      }
+    </div>
+
+    <p class="text-xs">© {{ year }} BooksClub</p>
+  </div>
+</footer>

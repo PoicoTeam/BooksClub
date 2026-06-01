@@ -1,54 +1,85 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import {
+  Book as BookModel,
+  BookMutationResponse,
+  BookPayload,
+  BookStats,
+} from '../models/book.model';
+
+export interface BookListFilters {
+  stato?: string;
+  preferito?: boolean;
+  q?: string;
+}
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class Book {
   private http = inject(HttpClient);
-  private apiUrl = '/api'; 
+  private apiUrl = '/api';
 
-  // Opzioni necessarie per condividere i cookie di sessione PHP
   private httpOptions = { withCredentials: true };
 
-  // 1. Recupera la lista di tutti i libri dell'utente
-  getBooks(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/books`, this.httpOptions);
+  getBooks(filters?: BookListFilters): Observable<BookModel[]> {
+    let params = new HttpParams();
+    if (filters?.stato) {
+      params = params.set('stato', filters.stato);
+    }
+    if (filters?.preferito !== undefined) {
+      params = params.set('preferito', filters.preferito ? '1' : '0');
+    }
+    if (filters?.q?.trim()) {
+      params = params.set('q', filters.q.trim());
+    }
+    return this.http.get<BookModel[]>(`${this.apiUrl}/books`, {
+      ...this.httpOptions,
+      params,
+    });
   }
 
-  // 2. Recupera il dettaglio di un singolo libro tramite ID
-  getBookById(idBook: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/books/${idBook}`, this.httpOptions);
+  getBookById(idBook: string): Observable<BookModel> {
+    return this.http.get<BookModel>(`${this.apiUrl}/books/${idBook}`, this.httpOptions);
   }
 
-  // 3. Recupera le statistiche dei libri dell'utente loggato
-  getStats(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/stats`, this.httpOptions);
+  getStats(): Observable<BookStats> {
+    return this.http.get<BookStats>(`${this.apiUrl}/stats`, this.httpOptions);
   }
 
-  // 4. Aggiunge un nuovo libro
-  addBook(book: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/books`, book, this.httpOptions);
+  addBook(book: BookPayload): Observable<BookMutationResponse> {
+    return this.http.post<BookMutationResponse>(`${this.apiUrl}/books`, book, this.httpOptions);
   }
 
-  // 5. Modifica completa di un libro esistente
-  updateBook(idBook: string, book: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/books/${idBook}`, book, this.httpOptions);
+  updateBook(idBook: string, book: BookPayload): Observable<BookMutationResponse> {
+    return this.http.put<BookMutationResponse>(
+      `${this.apiUrl}/books/${idBook}`,
+      book,
+      this.httpOptions
+    );
   }
 
-  // 6. Cambia lo stato di un libro (es. da leggere, in lettura, letto)
-  updateBookState(idBook: string, state: string): Observable<any> {
-    return this.http.patch<any>(`${this.apiUrl}/books/${idBook}/state`, { state }, this.httpOptions);
+  updateBookState(idBook: string, stato: string): Observable<BookMutationResponse> {
+    return this.http.patch<BookMutationResponse>(
+      `${this.apiUrl}/books/${idBook}/state`,
+      { stato },
+      this.httpOptions
+    );
   }
 
-  // 7. Aggiunge o rimuove un libro dai preferiti (Toggle)
-  toggleFavorite(idBook: string): Observable<any> {
-    return this.http.patch<any>(`${this.apiUrl}/books/${idBook}/favorite`, {}, this.httpOptions);
+  toggleFavorite(idBook: string, preferito: boolean): Observable<BookMutationResponse> {
+    return this.http.patch<BookMutationResponse>(
+      `${this.apiUrl}/books/${idBook}/favorite`,
+      { preferito },
+      this.httpOptions
+    );
   }
 
-  // 8. Elimina un libro
-  deleteBook(idBook: string): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/books/${idBook}`, this.httpOptions);
+  deleteBook(idBook: string): Observable<BookMutationResponse> {
+    return this.http.delete<BookMutationResponse>(
+      `${this.apiUrl}/books/${idBook}`,
+      this.httpOptions
+    );
   }
 }

@@ -1,179 +1,231 @@
-<div
-  class="min-h-screen bg-gradient-to-b from-orange-50/40 via-white to-orange-50/20 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300"
->
-  <nav
-    class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-orange-100/60 dark:border-gray-800/80 px-6 py-4 flex justify-between items-center sticky top-0 z-50 transition-all"
+<div class="max-w-7xl mx-auto p-4 sm:p-6 space-y-8">
+  <div
+    class="bg-white/70 dark:bg-gray-900/70 backdrop-blur-md border border-orange-100/80 dark:border-gray-800 rounded-2xl p-6 shadow-xl shadow-orange-100/20 dark:shadow-none flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover-lift"
   >
-    <div class="flex items-center gap-2">
-      <span
-        class="text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-amber-500 dark:from-indigo-400 dark:to-purple-400"
-        >📚 BooksClub</span
-      >
+    <div>
+      <h2 class="text-2xl font-black tracking-tight text-gray-900 dark:text-white">
+        Bentornato{{ username ? ', ' + username : '' }}! 👋
+      </h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+        La tua libreria personale: cerca, filtra e gestisci i tuoi libri.
+      </p>
     </div>
 
-    <div class="flex items-center gap-4">
-      <div class="relative hidden md:block">
-        <input
-          type="text"
-          placeholder="Cerca un libro..."
-          class="w-64 pl-10 pr-4 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-950/50 focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-orange-500/10 dark:focus:ring-indigo-500/10 outline-none transition-all duration-200"
-        />
-        <span class="absolute left-3.5 top-2.5 text-gray-400 text-sm">🔍</span>
-      </div>
-
-      <button
-        (click)="toggleTheme()"
-        type="button"
-        class="p-2.5 rounded-xl bg-orange-50 dark:bg-gray-800 text-orange-600 dark:text-indigo-400 border border-orange-100/50 dark:border-gray-700/60 hover:scale-105 active:scale-95 transition-all cursor-pointer"
-      >
-        <span *ngIf="isDark$ | async">☀️</span>
-        <span *ngIf="!(isDark$ | async)">🌙</span>
-      </button>
-
-      <button
-        (click)="logout()"
-        class="px-4 py-2.5 text-sm font-bold text-white bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 rounded-xl shadow-lg shadow-red-500/10 active:scale-95 transition-all cursor-pointer"
-      >
-        Esci
-      </button>
-    </div>
-  </nav>
-
-  <main class="max-w-7xl mx-auto p-4 sm:p-6 space-y-8">
-    <div
-      class="bg-white/70 dark:bg-gray-900/70 backdrop-blur-md border border-orange-100/80 dark:border-gray-800 rounded-2xl p-6 shadow-xl shadow-orange-100/20 dark:shadow-none flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all"
+    <a
+      routerLink="/add-book"
+      class="w-full sm:w-auto px-5 py-3 font-bold text-white bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 dark:from-indigo-600 dark:to-purple-600 rounded-xl shadow-lg hover:scale-[1.02] active:scale-95 transition-all text-center"
     >
-      <div>
-        <h2
-          class="text-2xl font-black tracking-tight text-gray-900 dark:text-white"
-        >
-          Bentornato nel Club! 👋
-        </h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-          Hai una bellissima collezione. Gestisci e consulta i tuoi libri da
-          qui.
-        </p>
-      </div>
+      + Aggiungi Libro
+    </a>
+  </div>
 
-      <button
-        routerLink="/add-book"
-        class="w-full sm:w-auto px-5 py-3 font-bold text-white bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 dark:from-indigo-600 dark:to-purple-600 dark:hover:from-indigo-700 dark:hover:to-purple-700 rounded-xl shadow-lg shadow-orange-500/20 dark:shadow-none hover:scale-[1.02] active:scale-95 transition-all cursor-pointer text-center"
-      >
-        + Aggiungi Libro
-      </button>
+  <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
+    <div class="relative flex-1 max-w-md">
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (keyup.enter)="onSearch()"
+        placeholder="Cerca titolo o autore..."
+        class="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-950/50 dark:text-white focus:ring-4 focus:ring-orange-500/10 dark:focus:ring-indigo-500/10 outline-none transition-all"
+      />
+      <span class="absolute left-3.5 top-3 text-gray-400 text-sm">🔍</span>
     </div>
+    <button
+      type="button"
+      (click)="onSearch()"
+      class="px-4 py-2.5 text-sm font-bold rounded-xl bg-orange-600 dark:bg-indigo-600 text-white hover:opacity-90 transition-all"
+    >
+      Cerca
+    </button>
+  </div>
 
+  <div *ngIf="stats" class="grid grid-cols-2 sm:grid-cols-5 gap-3">
     <div
-      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+      *ngFor="let stat of statCards; let i = index"
+      class="bg-white/70 dark:bg-gray-900/70 border border-orange-100/80 dark:border-gray-800 rounded-xl p-4 text-center book-card-enter hover-lift"
+      [style.animation-delay]="cardDelay(i)"
+    >
+      <p class="text-2xl font-black">{{ stat.value }}</p>
+      <p class="text-[10px] uppercase font-bold text-gray-400">{{ stat.label }}</p>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap gap-2">
+    <button
+      type="button"
+      (click)="setStatoFilter('da_leggere')"
+      [class.ring-2]="statoFilter === 'da_leggere'"
+      class="px-3 py-1.5 text-xs font-bold rounded-lg bg-gray-100 dark:bg-gray-800 dark:text-gray-200 transition-all"
+    >
+      Da leggere
+    </button>
+    <button
+      type="button"
+      (click)="setStatoFilter('in_lettura')"
+      [class.ring-2]="statoFilter === 'in_lettura'"
+      class="px-3 py-1.5 text-xs font-bold rounded-lg bg-gray-100 dark:bg-gray-800 dark:text-gray-200 transition-all"
+    >
+      In lettura
+    </button>
+    <button
+      type="button"
+      (click)="setStatoFilter('letto')"
+      [class.ring-2]="statoFilter === 'letto'"
+      class="px-3 py-1.5 text-xs font-bold rounded-lg bg-gray-100 dark:bg-gray-800 dark:text-gray-200 transition-all"
+    >
+      Letti
+    </button>
+    <button
+      type="button"
+      (click)="toggleFavoritesFilter()"
+      [class.ring-2]="showFavoritesOnly"
+      class="px-3 py-1.5 text-xs font-bold rounded-lg bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-300 transition-all"
+    >
+      Solo preferiti
+    </button>
+  </div>
+
+  <p *ngIf="loadingBooks" class="text-sm text-gray-500 dark:text-gray-400 animate-pulse">
+    Caricamento libri...
+  </p>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div
+      *ngFor="let book of paginatedBooks; let i = index"
+      class="group bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800/80 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col book-card-enter"
+      [style.animation-delay]="cardDelay(i)"
     >
       <div
-        *ngFor="let book of books"
-        class="group bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800/80 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
+        class="h-44 bg-gradient-to-br from-orange-100/60 to-amber-100/40 dark:from-gray-800 dark:to-indigo-950/40 flex items-center justify-center relative overflow-hidden"
       >
-        <div
-          class="h-44 bg-gradient-to-br from-orange-100/60 to-amber-100/40 dark:from-gray-800 dark:to-indigo-950/40 flex items-center justify-center relative overflow-hidden"
+        <img
+          *ngIf="shouldShowCover(book)"
+          [src]="book.copertina"
+          [alt]="book.titolo"
+          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          (error)="markCoverFailed(book)"
+        />
+
+        <span
+          *ngIf="!shouldShowCover(book)"
+          class="text-5xl group-hover:scale-110 transition-transform duration-300 select-none"
         >
-          <img
-            *ngIf="book.copertina"
-            [src]="book.copertina"
-            [alt]="book.titolo"
-            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            (error)="book.copertina = null"
-          />
+          📖
+        </span>
 
-          <span
-            *ngIf="!book.copertina"
-            class="text-5xl group-hover:scale-110 transition-transform duration-300 select-none"
-          >
-            📖
-          </span>
+        <span
+          *ngIf="book.anno"
+          class="absolute top-3 left-3 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md bg-white/90 dark:bg-gray-950/90 text-gray-700 dark:text-gray-300 shadow-sm z-10"
+        >
+          {{ book.anno }}
+        </span>
 
-          <span
-            *ngIf="book.anno"
-            class="absolute top-3 left-3 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md bg-white/90 dark:bg-gray-950/90 text-gray-700 dark:text-gray-300 shadow-sm z-10"
-          >
-            {{ book.anno }}
-          </span>
+        <span
+          class="absolute top-3 right-3 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md bg-orange-600 dark:bg-indigo-600 text-white shadow-sm z-10"
+        >
+          {{ book.genere || 'Libro' }}
+        </span>
+      </div>
 
-          <span
-            class="absolute top-3 right-3 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md bg-orange-600 dark:bg-indigo-600 text-white shadow-sm z-10"
-          >
-            {{ book.genere || 'Libro' }}
-          </span>
-        </div>
-
-        <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
-          <div class="space-y-2">
-            <div>
-              <h3
-                class="font-extrabold text-lg text-gray-900 dark:text-gray-100 tracking-tight line-clamp-1 group-hover:text-orange-600 dark:group-hover:text-indigo-400 transition-colors"
-              >
-                {{ book.titolo }}
-              </h3>
-              <p
-                class="text-xs font-semibold text-gray-500 dark:text-gray-400 mt-0.5"
-              >
-                di {{ book.autore }}
-              </p>
-            </div>
-
-            <div
-              *ngIf="book.voto"
-              class="flex items-center gap-1 text-amber-500 text-sm"
-              [title]="'Voto: ' + book.voto + '/5'"
+      <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+        <div class="space-y-2">
+          <div>
+            <h3
+              class="font-extrabold text-lg text-gray-900 dark:text-gray-100 tracking-tight line-clamp-1 group-hover:text-orange-600 dark:group-hover:text-indigo-400 transition-colors"
             >
-              <span>{{ getStars(book.voto) }}</span>
-              <span
-                class="text-[11px] font-bold text-gray-400 dark:text-gray-500 ml-1"
-                >({{ book.voto }}/5)</span
-              >
-            </div>
-
+              <span *ngIf="book.preferito" class="text-red-500 mr-1">❤</span>{{ book.titolo }}
+            </h3>
+            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 mt-0.5">
+              di {{ book.autore }}
+            </p>
             <p
-              *ngIf="book.descrizione"
-              class="text-xs text-gray-400 dark:text-gray-400 line-clamp-2 leading-relaxed pt-1"
+              *ngIf="book.stato"
+              class="text-[10px] font-bold uppercase tracking-wide text-orange-600 dark:text-indigo-400 mt-1"
             >
-              {{ book.descrizione }}
+              {{ formatStato(book.stato) }}
             </p>
           </div>
 
           <div
-            class="pt-3 border-t border-gray-50 dark:border-gray-800/60 text-[11px] text-gray-400 dark:text-gray-500 space-y-0.5 font-medium"
+            *ngIf="book.voto"
+            class="flex items-center gap-1 text-amber-500 text-sm"
+            [title]="'Voto: ' + book.voto + '/5'"
           >
-            <div *ngIf="book.editore" class="flex justify-between">
-              <span>Editore:</span>
-              <span class="text-gray-600 dark:text-gray-400 font-semibold"
-                >{{ book.editore }}</span
-              >
-            </div>
-            <div *ngIf="book.isbn" class="flex justify-between">
-              <span>ISBN:</span>
-              <span class="font-mono">{{ book.isbn }}</span>
-            </div>
+            <span>{{ getStars(book.voto) }}</span>
+            <span class="text-[11px] font-bold text-gray-400 dark:text-gray-500 ml-1"
+              >({{ book.voto }}/5)</span
+            >
           </div>
 
-          <button
-            [routerLink]="['/book-details', book._id]"
-            class="w-full py-2.5 text-sm font-bold text-orange-600 dark:text-indigo-400 bg-orange-50 dark:bg-gray-800/40 group-hover:bg-orange-600 group-hover:text-white dark:group-hover:bg-indigo-600 dark:group-hover:text-white rounded-xl transition-all duration-200 cursor-pointer text-center"
+          <p
+            *ngIf="book.descrizione"
+            class="text-xs text-gray-400 dark:text-gray-400 line-clamp-2 leading-relaxed pt-1"
           >
-            Vedi Dettagli
-          </button>
+            {{ book.descrizione }}
+          </p>
         </div>
-      </div>
 
-      <div
-        *ngIf="!books || books.length === 0"
-        class="col-span-full py-24 text-center space-y-3"
-      >
-        <span class="text-5xl block opacity-40">📭</span>
-        <h3 class="text-lg font-bold text-gray-400 dark:text-gray-500">
-          Nessun libro nel tuo spazio privato
-        </h3>
-        <p class="text-sm text-gray-400/70 max-w-sm mx-auto">
-          Inizia subito cliccando sul pulsante in alto per aggiungere il tuo
-          premier libro al club!
-        </p>
+        <div
+          class="pt-3 border-t border-gray-50 dark:border-gray-800/60 text-[11px] text-gray-400 dark:text-gray-500 space-y-0.5 font-medium"
+        >
+          <div *ngIf="book.editore" class="flex justify-between">
+            <span>Editore:</span>
+            <span class="text-gray-600 dark:text-gray-400 font-semibold">{{ book.editore }}</span>
+          </div>
+          <div *ngIf="book.isbn" class="flex justify-between">
+            <span>ISBN:</span>
+            <span class="font-mono">{{ book.isbn }}</span>
+          </div>
+        </div>
+
+        <a
+          [routerLink]="['/book-details', book._id]"
+          class="block w-full py-2.5 text-sm font-bold text-center text-orange-600 dark:text-indigo-400 bg-orange-50 dark:bg-gray-800/40 group-hover:bg-orange-600 group-hover:text-white dark:group-hover:bg-indigo-600 dark:group-hover:text-white rounded-xl transition-all duration-200"
+        >
+          Vedi Dettagli
+        </a>
       </div>
     </div>
-  </main>
+
+    <div
+      *ngIf="!loadingBooks && allBooks.length === 0"
+      class="col-span-full py-24 text-center space-y-3 book-card-enter"
+    >
+      <span class="text-5xl block opacity-40">📭</span>
+      <h3 class="text-lg font-bold text-gray-400 dark:text-gray-500">
+        Nessun libro nel tuo spazio privato
+      </h3>
+      <p class="text-sm text-gray-400/70 max-w-sm mx-auto">
+        Inizia cliccando su «Aggiungi Libro» per arricchire la tua collezione.
+      </p>
+    </div>
+  </div>
+
+  <div
+    *ngIf="allBooks.length > pageSize"
+    class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2"
+  >
+    <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">{{ paginationLabel }}</p>
+    <div class="flex items-center gap-2">
+      <button
+        type="button"
+        (click)="goToPage(currentPage - 1)"
+        [disabled]="currentPage <= 1"
+        class="px-3 py-2 text-xs font-bold rounded-lg border border-gray-200 dark:border-gray-700 disabled:opacity-40 dark:text-gray-200 transition-all"
+      >
+        Precedente
+      </button>
+      <span class="text-xs font-bold text-gray-600 dark:text-gray-300 px-2">
+        Pagina {{ currentPage }} / {{ totalPages }}
+      </span>
+      <button
+        type="button"
+        (click)="goToPage(currentPage + 1)"
+        [disabled]="currentPage >= totalPages"
+        class="px-3 py-2 text-xs font-bold rounded-lg border border-gray-200 dark:border-gray-700 disabled:opacity-40 dark:text-gray-200 transition-all"
+      >
+        Successiva
+      </button>
+    </div>
+  </div>
 </div>

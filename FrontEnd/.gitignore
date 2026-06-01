@@ -1,1 +1,17 @@
-node_modules
+# Dependencies
+node_modules/
+
+# Angular build cache and output
+.angular/
+dist/
+
+# IDE and OS
+.idea/
+.vscode/
+*.log
+.DS_Store
+Thumbs.db
+
+# Environment (se aggiunti in futuro)
+.env
+.env.local
