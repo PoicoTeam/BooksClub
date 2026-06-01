@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class Book {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080'; 
+  private apiUrl = '/api'; 
 
   // Recupera la lista dei libri
   getBooks(): Observable<any[]> {

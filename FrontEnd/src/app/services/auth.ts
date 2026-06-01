@@ -10,7 +10,7 @@ export class Auth {
   private http = inject(HttpClient);
 
 
-  private apiUrl = 'http://localhost:8080'; 
+  private apiUrl = '/api'; 
 
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
