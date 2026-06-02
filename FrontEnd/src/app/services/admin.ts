@@ -40,6 +40,14 @@ export class Admin {
     );
   }
 
+  // DELETE /admin/users
+  deleteAllUsers(): Observable<{ status: string; message: string }> {
+    return this.http.delete<{ status: string; message: string }>(
+      `${this.url}/admin/users`, // Nota: niente ID finale
+      this.httpOptions
+    );
+  }
+
   // PATCH /admin/users/{id}/reset-password — password default 1234@ lato backend
   resetPassword(id: string): Observable<{ status: string; message: string }> {
     return this.http.patch<{ status: string; message: string }>(

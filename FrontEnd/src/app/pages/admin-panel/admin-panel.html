@@ -1,38 +1,101 @@
 <div class="max-w-6xl mx-auto p-6 sm:p-10 space-y-8">
+
+  <!-- Header -->
   <div class="book-card-enter">
-    <h1 class="text-3xl font-black text-gray-900 dark:text-white">Pannello Admin</h1>
-    <p class="text-gray-500 dark:text-gray-400 mt-1">Gestione utenti del club</p>
+    <h1 class="text-3xl font-black text-gray-900 dark:text-white">
+      Pannello Admin
+    </h1>
+    <p class="text-gray-500 dark:text-gray-400 mt-1">
+      Gestione utenti e manutenzione del sistema
+    </p>
   </div>
 
+  <!-- Statistiche -->
   <div class="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm max-w-sm">
-    <h3 class="text-sm font-bold text-gray-400">Utenti registrati</h3>
-    <p class="text-4xl font-black mt-2">{{ stats?.numero_utenti_registrati ?? 0 }}</p>
+    <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider">
+      Utenti registrati
+    </h3>
+
+    <p class="text-4xl font-black mt-2 text-gray-900 dark:text-white">
+      {{ stats?.numero_utenti_registrati ?? 0 }}
+    </p>
   </div>
 
+  <!-- Lista utenti -->
   <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden shadow-sm">
-    <table class="w-full text-left">
-      <thead class="bg-gray-50 dark:bg-gray-800/50">
-        <tr>
-          <th class="p-4 font-bold text-sm">Username</th>
-          <th class="p-4 font-bold text-sm">Azioni</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let user of users" class="border-t border-gray-100 dark:border-gray-800">
-          <td class="p-4">{{ user.username }}</td>
-          <td class="p-4 flex gap-2 flex-wrap">
-            <button (click)="handleReset(user.id)" class="text-xs bg-amber-500 text-white px-3 py-1 rounded-md">
-              Reset password
-            </button>
-            <button (click)="handleDelete(user.id)" class="text-xs bg-red-500 text-white px-3 py-1 rounded-md">
-              Elimina
-            </button>
-          </td>
-        </tr>
-        <tr *ngIf="users.length === 0">
-          <td colspan="2" class="p-6 text-center text-gray-400 text-sm">Nessun utente da gestire.</td>
-        </tr>
-      </tbody>
-    </table>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead class="bg-gray-50 dark:bg-gray-800/50">
+          <tr>
+            <th class="p-4 font-bold text-sm text-gray-600 dark:text-gray-300">
+              Username
+            </th>
+            <th class="p-4 font-bold text-sm text-gray-600 dark:text-gray-300">
+              Azioni
+            </th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+          <tr
+            *ngFor="let user of users"
+            class="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
+
+            <td class="p-4 font-medium">
+              {{ user.username }}
+            </td>
+
+            <td class="p-4 flex gap-2">
+              <button
+                (click)="handleReset(user.id)"
+                class="text-xs bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-md transition">
+                Reset Password
+              </button>
+
+              <button
+                (click)="handleDelete(user.id)"
+                class="text-xs bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-md transition">
+                Elimina
+              </button>
+            </td>
+          </tr>
+
+          <tr *ngIf="users.length === 0">
+            <td colspan="2" class="p-8 text-center text-gray-400">
+              Nessun utente trovato.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
   </div>
+
+  <!-- Operazioni di sistema -->
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-red-200 dark:border-red-900 shadow-sm">
+
+    <div class="p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
+      <div>
+        <h3 class="font-semibold text-gray-900 dark:text-white">
+          Elimina tutti gli utenti
+        </h3>
+
+        <p class="text-sm text-gray-500 mt-1">
+          Rimuove definitivamente tutti gli account registrati.
+          L'operazione non può essere annullata.
+        </p>
+      </div>
+
+      <button
+        (click)="handleDeleteAll()"
+        class="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-semibold shadow-sm transition whitespace-nowrap">
+        Elimina tutti gli utenti
+      </button>
+
+    </div>
+
+  </div>
+
 </div>

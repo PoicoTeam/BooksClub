@@ -55,6 +55,22 @@ export class AdminPanel implements OnInit {
     }
   }
 
+  handleDeleteAll() {
+    const confirmed = confirm('ATTENZIONE: Stai per eliminare TUTTI gli utenti e i loro libri. Procedere?');
+    const doubleCheck = confirm('SEI DAVVERO SICURO? Questa operazione non può essere annullata.');
+
+    if (confirmed && doubleCheck) {
+      this.adminService.deleteAllUsers().subscribe({
+        next: (res) => {
+          this.notification.success('Database pulito con successo.');
+          this.loadAdminData(); // Ricarica la dashboard
+        },
+        error: (err) =>
+          this.notification.error(getApiErrorMessage(err, 'Errore durante la cancellazione totale.')),
+      });
+    }
+  }
+
   handleReset(id: string) {
     if (confirm('Resettare la password a 1234@ ?')) {
       this.adminService.resetPassword(id).subscribe({
