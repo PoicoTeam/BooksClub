@@ -64,6 +64,13 @@ Operazioni disponibili:
 
 ---
 
+## Stato del Progetto
+Ecco come è stata organizzata la pianificazione dello sviluppo:
+
+![Bacheca Trello del progetto](docs/trello_booksClub.png)
+
+---
+
 ## 🏗️ Architettura
 
 ```text
