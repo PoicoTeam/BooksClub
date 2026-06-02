@@ -44,9 +44,9 @@ $container = new \DI\Container();
 */
 $container->set('db', function (ContainerInterface $container) {
     // CORRETTO: l'host è 'my_mongodb' e la password è 'pass' come da configurazione docker
-    $uri = "mongodb://admin:pass@my_mongodb:27017/?authSource=admin"; 
+    $uri = getenv('MONGO_URI');
     $client = new Client($uri);
-    return $client->selectDatabase('bookShop');
+    return $client->selectDatabase(getenv('MONGO_DB'));
 });
 
 // inizializzazione dell'app Slim con il container configurato
