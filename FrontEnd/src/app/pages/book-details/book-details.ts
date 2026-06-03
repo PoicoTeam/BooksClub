@@ -47,6 +47,25 @@ export class BookDetailsComponent implements OnInit {
       this.loading = false;
     }
   }
+  
+  formatStato(stato: string | undefined): string {
+    if (!stato) {
+      return '📚 Da Leggere';
+    }
+    const stati: Record<string, string> = {
+      da_leggere: '📚 Da Leggere',
+      in_lettura: '📖 In Lettura',
+      letto: '✅ Letto',
+    };
+    return stati[stato] || stato;
+  }
+
+  getStars(voto: number): string {
+    const roundedVoto = Math.round(voto);
+    const filledStars = '⭐'.repeat(Math.max(0, Math.min(5, roundedVoto)));
+    const emptyStars = '☆'.repeat(Math.max(0, Math.min(5, 5 - roundedVoto)));
+    return filledStars + emptyStars;
+  }
 
   loadBookDetails(id: string) {
     this.bookService.getBookById(id).subscribe({
@@ -63,43 +82,8 @@ export class BookDetailsComponent implements OnInit {
       },
     });
   }
-
-  getStars(voto: number): string {
-    const roundedVoto = Math.round(voto);
-    const filledStars = '⭐'.repeat(Math.max(0, Math.min(5, roundedVoto)));
-    const emptyStars = '☆'.repeat(Math.max(0, Math.min(5, 5 - roundedVoto)));
-    return filledStars + emptyStars;
-  }
-
-  formatStato(stato: string | undefined): string {
-    if (!stato) {
-      return '📚 Da Leggere';
-    }
-    const stati: Record<string, string> = {
-      da_leggere: '📚 Da Leggere',
-      in_lettura: '📖 In Lettura',
-      letto: '✅ Letto',
-    };
-    return stati[stato] || stato;
-  }
-
-  changeStato(stato: BookStato) {
-    if (!this.bookData?._id) {
-      return;
-    }
-    this.bookService.updateBookState(this.bookData._id, stato).subscribe({
-      next: () => {
-        this.bookData!.stato = stato;
-        this.libraryEvents.notifyCatalogChanged();
-        this.notification.success('Stato di lettura aggiornato.');
-      },
-      error: (err) =>
-        this.notification.error(
-          getApiErrorMessage(err, 'Errore durante l\'aggiornamento dello stato.')
-        ),
-    });
-  }
-
+  
+  
   togglePreferito() {
     if (!this.bookData?._id) {
       return;
@@ -116,6 +100,23 @@ export class BookDetailsComponent implements OnInit {
       error: (err) =>
         this.notification.error(
           getApiErrorMessage(err, 'Errore durante l\'aggiornamento dei preferiti.')
+        ),
+    });
+  }
+  
+  changeStato(stato: BookStato) {
+    if (!this.bookData?._id) {
+      return;
+    }
+    this.bookService.updateBookState(this.bookData._id, stato).subscribe({
+      next: () => {
+        this.bookData!.stato = stato;
+        this.libraryEvents.notifyCatalogChanged();
+        this.notification.success('Stato di lettura aggiornato.');
+      },
+      error: (err) =>
+        this.notification.error(
+          getApiErrorMessage(err, 'Errore durante l\'aggiornamento dello stato.')
         ),
     });
   }

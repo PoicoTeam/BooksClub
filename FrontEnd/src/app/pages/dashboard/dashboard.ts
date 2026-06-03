@@ -71,9 +71,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.refreshCatalog();
   }
 
-  ngOnDestroy() {
-    this.subscriptions.unsubscribe();
-  }
+  
 
   get statCards(): { label: string; value: number }[] {
     if (!this.stats) {
@@ -88,9 +86,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ];
   }
 
-  get totalPages(): number {
-    return Math.max(1, Math.ceil(this.allBooks.length / this.pageSize));
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
+
+  
 
   get paginatedBooks(): BookModel[] {
     const start = (this.currentPage - 1) * this.pageSize;
@@ -104,6 +104,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const start = (this.currentPage - 1) * this.pageSize + 1;
     const end = Math.min(this.currentPage * this.pageSize, this.allBooks.length);
     return `${start}–${end} di ${this.allBooks.length}`;
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.allBooks.length / this.pageSize));
   }
 
   cardDelay(index: number): string {
@@ -129,6 +133,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
+  
+
+  onSearch() {
+    this.currentPage = 1;
+    this.loadBooks();
+  }
   loadBooks() {
     this.loadingBooks = true;
     this.bookService
@@ -152,11 +162,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
           );
         },
       });
-  }
-
-  onSearch() {
-    this.currentPage = 1;
-    this.loadBooks();
   }
 
   setStatoFilter(stato: string) {
