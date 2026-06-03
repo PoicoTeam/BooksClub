@@ -110,7 +110,7 @@ BooksClub/
 │   ├── src/
 │   ├── public/
 │   └── README.md
-│
+├── docs/
 ├── docker-compose.yml
 └── README.md
 ```
