@@ -25,20 +25,21 @@ export class Notification {
     this.show('success', text, durationMs);
   }
 
+  warning(text: string, durationMs = this.defaultDurationMs): void {
+    this.show('warning', text, durationMs);
+  }
+
+  
+  dismiss(id: number): void {
+    this.messagesSubject.next(this.messagesSubject.value.filter((m) => m.id !== id));
+  }
+
   error(text: string, durationMs = this.defaultDurationMs + 1500): void {
     this.show('error', text, durationMs);
   }
 
   info(text: string, durationMs = this.defaultDurationMs): void {
     this.show('info', text, durationMs);
-  }
-
-  warning(text: string, durationMs = this.defaultDurationMs): void {
-    this.show('warning', text, durationMs);
-  }
-
-  dismiss(id: number): void {
-    this.messagesSubject.next(this.messagesSubject.value.filter((m) => m.id !== id));
   }
 
   private show(type: ToastType, text: string, durationMs: number): void {

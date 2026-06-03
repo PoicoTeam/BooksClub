@@ -32,6 +32,12 @@ export class NavbarComponent implements OnInit {
     this.isAdmin = ruolo === 'admin';
   }
 
+  
+
+  closeMobile() {
+    this.mobileOpen = false;
+  }
+
   toggleTheme() {
     this.theme.toggleTheme();
   }
@@ -41,10 +47,6 @@ export class NavbarComponent implements OnInit {
       next: () => this.router.navigate(['/login']),
       error: () => this.router.navigate(['/login']),
     });
-  }
-
-  closeMobile() {
-    this.mobileOpen = false;
   }
   
   ngOnInit() {

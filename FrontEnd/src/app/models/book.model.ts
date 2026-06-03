@@ -22,6 +22,18 @@ export interface Book {
   copertinaFallita?: boolean;
 }
 
+
+
+
+// risposta GET /stats
+export interface BookStats {
+  totale_libri: number;
+  letti: number;
+  da_leggere: number;
+  in_lettura: number;
+  preferiti: number;
+}
+
 // body per POST /books e PUT /books/{id}
 export interface BookPayload {
   titolo: string;
@@ -35,15 +47,6 @@ export interface BookPayload {
   preferito?: boolean;
   voto?: number | null;
   copertina?: string;
-}
-
-// risposta GET /stats
-export interface BookStats {
-  totale_libri: number;
-  letti: number;
-  da_leggere: number;
-  in_lettura: number;
-  preferiti: number;
 }
 
 export interface BookMutationResponse {

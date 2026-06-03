@@ -26,12 +26,7 @@ export class LoginComponent {
   loginForm: FormGroup;
   errorMessage = '';
 
-  constructor() {
-    this.loginForm = this.fb.group({
-      username: ['', [Validators.required]],
-      password: ['', [Validators.required]],
-    });
-  }
+  
 
   onSubmit() {
     if (this.loginForm.invalid) {
@@ -55,6 +50,13 @@ export class LoginComponent {
       error: (err) => {
         this.errorMessage = getApiErrorMessage(err, 'Username o password non corretti.');
       },
+    });
+  }
+
+  constructor() {
+    this.loginForm = this.fb.group({
+      username: ['', [Validators.required]],
+      password: ['', [Validators.required]],
     });
   }
 }

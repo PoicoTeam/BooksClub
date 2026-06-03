@@ -24,18 +24,20 @@ export class ThemeService {
     }
   }
 
+  
+
+  private enableDark() {
+    this.isDarkSubject.next(true);
+    this.document.documentElement.classList.add('dark');
+    localStorage.setItem('theme', 'dark');
+  }
+
   toggleTheme() {
     if (this.isDarkSubject.value) {
       this.disableDark();
     } else {
       this.enableDark();
     }
-  }
-
-  private enableDark() {
-    this.isDarkSubject.next(true);
-    this.document.documentElement.classList.add('dark');
-    localStorage.setItem('theme', 'dark');
   }
 
   private disableDark() {
