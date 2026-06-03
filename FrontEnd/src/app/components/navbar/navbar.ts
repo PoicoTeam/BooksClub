@@ -27,22 +27,6 @@ export class NavbarComponent implements OnInit {
   isAdmin = false;
   mobileOpen = false;
 
-  ngOnInit() {
-    const user = this.auth.currentUserValue;
-    if (user) {
-      this.applyUser(user.username, user.ruolo);
-    } else if (this.variant === 'app') {
-      // in area protetta recupera sessione se non ancora in memoria
-      this.auth.checkSession().subscribe({
-        next: (res) => {
-          if (res.logged && res.username && res.ruolo) {
-            this.applyUser(res.username, res.ruolo);
-          }
-        },
-      });
-    }
-  }
-
   private applyUser(username: string, ruolo: string) {
     this.username = username;
     this.isAdmin = ruolo === 'admin';
@@ -62,4 +46,22 @@ export class NavbarComponent implements OnInit {
   closeMobile() {
     this.mobileOpen = false;
   }
+  
+  ngOnInit() {
+    const user = this.auth.currentUserValue;
+    if (user) {
+      this.applyUser(user.username, user.ruolo);
+    } else if (this.variant === 'app') {
+      // in area protetta recupera sessione se non ancora in memoria
+      this.auth.checkSession().subscribe({
+        next: (res) => {
+          if (res.logged && res.username && res.ruolo) {
+            this.applyUser(res.username, res.ruolo);
+          }
+        },
+      });
+    }
+  }
+
+
 }
